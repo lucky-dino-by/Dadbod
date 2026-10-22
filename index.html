@@ -1,0 +1,2028 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dadbod OS | Clinical Recomp & Cardio Protocol</title>
+  <!-- Load Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          colors: {
+            slate: { 850: '#151e2e', 950: '#090d16' },
+            emerald: { 450: '#10b981' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .breath-circle { transition: all 0.5s ease-in-out; }
+    
+    /* Interactive Clinical Term Styling */
+    .term-link {
+      border-bottom: 1.5px dotted #34d399;
+      color: #6ee7b7;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    .term-link:hover {
+      color: #ffffff;
+      background-color: rgba(16, 185, 129, 0.2);
+      border-radius: 4px;
+      padding: 0 3px;
+      margin: 0 -3px;
+    }
+
+    /* Animated SVG Keyframes for Exercise Demos */
+    @keyframes svgPush {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-18px); }
+    }
+    @keyframes svgPull {
+      0%, 100% { transform: translateY(-16px); }
+      50% { transform: translateY(4px); }
+    }
+    @keyframes svgRow {
+      0%, 100% { transform: translateX(0px); }
+      50% { transform: translateX(-16px); }
+    }
+    @keyframes svgSquat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(18px); }
+    }
+    @keyframes svgPulse {
+      0%, 100% { opacity: 0.35; transform: scale(0.96); }
+      50% { opacity: 0.95; transform: scale(1.06); }
+    }
+    @keyframes svgDash {
+      to { stroke-dashoffset: -40; }
+    }
+    .anim-push { animation: svgPush 2.8s infinite ease-in-out; }
+    .anim-pull { animation: svgPull 2.8s infinite ease-in-out; }
+    .anim-row { animation: svgRow 2.6s infinite ease-in-out; }
+    .anim-squat { animation: svgSquat 3s infinite ease-in-out; }
+    .anim-pulse { animation: svgPulse 2s infinite ease-in-out; transform-origin: center; }
+    .anim-track { stroke-dasharray: 8 6; animation: svgDash 1.5s linear infinite; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-28 selection:bg-emerald-500 selection:text-white">
+
+  <!-- Top Header & Cycle Selector -->
+  <header class="sticky top-0 z-30 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+    <div class="max-w-3xl mx-auto flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded">Clinical Recomp & Cardio Protocol</span>
+            <button onclick="openGlossaryIndex()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 px-2.5 py-0.5 rounded-md font-medium flex items-center gap-1 transition">
+              <span>📖</span> Glossary
+            </button>
+          </div>
+          <h1 class="text-lg font-extrabold tracking-tight text-white mt-1">Dadbod OS <span class="text-xs font-medium text-slate-400 ml-1">• 14-Day Cycle</span></h1>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="text-right">
+            <div class="text-[11px] text-slate-400">2-Week Cycle</div>
+            <div class="flex items-center gap-1 mt-0.5 justify-end">
+              <button onclick="changeCycle(-1)" class="px-2.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-xs font-bold transition">-</button>
+              <span id="cycleDisplay" class="text-sm font-bold text-emerald-400 px-1.5">#1</span>
+              <button onclick="changeCycle(1)" class="px-2.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-xs font-bold transition">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 14-Day Pill Scroller -->
+      <div id="dayScroller" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1"></div>
+    </div>
+  </header>
+
+  <!-- Floating Rest / Track Interval Timer Bar -->
+  <div id="QuickTimerBar" class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-2 sticky top-[112px] z-20">
+    <div class="max-w-3xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Rest Timer:</span>
+        <span id="timerDisplay" class="font-mono text-lg font-bold text-emerald-400 w-16">01:00</span>
+        <button onclick="toggleTimer()" id="timerStartBtn" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-1 rounded-lg transition">Start</button>
+        <button onclick="resetTimer()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg transition">Reset</button>
+      </div>
+      <div class="flex items-center gap-1 text-xs">
+        <button onclick="setTimer(45)" class="bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg text-slate-300 font-mono transition">45s</button>
+        <button onclick="setTimer(60)" class="bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg text-slate-300 font-mono transition">60s</button>
+        <button onclick="setTimer(75)" class="bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg text-slate-300 font-mono transition">75s</button>
+        <button onclick="setTimer(90)" class="bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg text-slate-300 font-mono transition">90s</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Container -->
+  <main class="max-w-3xl mx-auto px-4 pt-4">
+
+    <!-- Simplified Clinical Safety Banner with Interactive Popups -->
+    <div class="mb-4 bg-amber-950/30 border border-amber-800/50 rounded-xl p-3.5 flex items-start gap-3">
+      <div class="text-amber-400 text-lg mt-0.5">⚡</div>
+      <div class="text-xs text-amber-100/90 leading-relaxed">
+        <strong class="text-amber-300">Blood Pressure Safety Rule:</strong> Follow the <span onclick="openTermModal('valsalva')" class="term-link">Anti-Valsalva Rule ⓘ</span>—never hold your breath while lifting. Blow air out forcefully on the hardest part of every lift, and breathe in smoothly as you lower the weight. Keep <span onclick="openTermModal('zone2')" class="term-link">Zone 2 Cardio ⓘ</span> at an easy, conversational pace (122–136 BPM).
+      </div>
+    </div>
+
+    <!-- TAB 1: TRAINING SPLIT -->
+    <section id="tab-workout" class="space-y-4">
+      <div id="workoutHeaderCard" class="bg-slate-900 border border-slate-800 rounded-xl p-4"></div>
+      
+      <!-- Interactive Hint Banner -->
+      <div class="flex items-center justify-between bg-slate-900/70 border border-slate-800/80 rounded-xl px-3.5 py-2 text-xs text-slate-300">
+        <span>💡 <strong>Tip:</strong> Tap any exercise card below to expand its <strong>Animated Form Demo & Breathing Guide</strong>.</span>
+        <div class="flex gap-2">
+          <button onclick="openTermModal('tempo')" class="term-link text-[11px]">Tempo ⓘ</button>
+          <button onclick="openTermModal('rpe')" class="term-link text-[11px]">RPE ⓘ</button>
+        </div>
+      </div>
+
+      <div id="workoutExercisesContainer" class="space-y-3"></div>
+    </section>
+
+    <!-- TAB 2: THERAPEUTIC NUTRITION -->
+    <section id="tab-nutrition" class="hidden space-y-4">
+      <!-- Macro Banner -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h2 class="text-base font-bold text-white">Daily Heart-Healthy Recomp Nutrition</h2>
+            <p id="macroDayTypeLabel" class="text-xs text-emerald-400 font-medium mt-0.5"></p>
+          </div>
+          <span class="text-xs bg-slate-800 text-slate-200 px-3 py-1 rounded-full font-mono font-semibold" id="dayCalorieTarget"></span>
+        </div>
+        <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+          Combines the cholesterol-lowering <span onclick="openTermModal('portfolio')" class="term-link">Portfolio Diet ⓘ</span> with the blood-pressure-lowering <span onclick="openTermModal('dash')" class="term-link">DASH Protocol ⓘ</span> while keeping protein high to build muscle and burn fat.
+        </p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+          <div class="bg-slate-950/90 border border-slate-800 p-2.5 rounded-lg">
+            <div class="text-[10px] uppercase text-slate-400 font-semibold">Protein (Muscle)</div>
+            <div id="macroP" class="text-sm font-bold text-white mt-0.5">200g</div>
+          </div>
+          <div class="bg-slate-950/90 border border-slate-800 p-2.5 rounded-lg">
+            <div class="text-[10px] uppercase text-slate-400 font-semibold">Smart Carbs</div>
+            <div id="macroC" class="text-sm font-bold text-white mt-0.5">210g</div>
+          </div>
+          <div class="bg-slate-950/90 border border-slate-800 p-2.5 rounded-lg">
+            <div class="text-[10px] uppercase text-slate-400 font-semibold">Healthy Fats</div>
+            <div id="macroF" class="text-sm font-bold text-white mt-0.5">68g</div>
+          </div>
+          <div onclick="openTermModal('soluble_fiber')" class="bg-emerald-950/30 border border-emerald-800/60 p-2.5 rounded-lg cursor-pointer hover:bg-emerald-950/50 transition">
+            <div class="text-[10px] uppercase text-emerald-300 font-semibold flex items-center justify-center gap-1">Gel Fiber <span>ⓘ</span></div>
+            <div class="text-sm font-bold text-emerald-400 mt-0.5">12–15g</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clinical Micro & Lipid Targets -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Daily Cholesterol & Blood Pressure Checkpoints</h3>
+          <span class="text-[11px] text-slate-400">Tap ⓘ for plain-English science</span>
+        </div>
+        <div id="clinicalCheckpointsList" class="space-y-2.5"></div>
+      </div>
+
+      <!-- Daily Meals Checklist -->
+      <div class="space-y-3" id="mealsListContainer"></div>
+    </section>
+
+    <!-- TAB 3: RECOVERY & VAGAL BREATHING -->
+    <section id="tab-recovery" class="hidden space-y-4">
+      <!-- Sauna Protocol Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-base font-bold text-white">Club Dry Sauna Blood Pressure Protocol</h2>
+          <span class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2.5 py-0.5 rounded-full font-semibold">Mon & Thu (15 Min)</span>
+        </div>
+        <p class="text-xs text-slate-300 leading-relaxed mb-3">
+          Using the dry sauna (175°F–190°F) for 12 minutes after lifting triggers <span onclick="openTermModal('enos')" class="term-link">Nitric Oxide Vessel Relaxation (eNOS) ⓘ</span>, which acts like a natural blood pressure reducer for 24 hours. <strong class="text-rose-400">Skip icy cold plunges (&lt;55°F)</strong>—freezing water causes sudden blood vessel clamping ("cold shock") that sharply spikes blood pressure.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <div class="font-bold text-emerald-400 mb-1">1. Mins 0–12: Dry Sauna</div>
+            <p class="text-slate-400 leading-relaxed">Sit on the middle bench right after your workout. Breathe slowly (4s in, 4s hold, 4s out) to calm your nervous system.</p>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <div class="font-bold text-emerald-400 mb-1">2. Mins 12–15: Mild Cool Shower</div>
+            <p class="text-slate-400 leading-relaxed">Take a lukewarm-to-cool shower (65°F–70°F) to stop sweating gently without shocking your arteries.</p>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <div class="font-bold text-emerald-400 mb-1">3. Low-Sodium Hydration</div>
+            <p class="text-slate-400 leading-relaxed">Drink 16 oz water with a potassium/magnesium electrolyte powder (avoid high-salt packets like LMNT).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive 5-Minute Evening Vagal Breathing Pacer -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 text-center">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-sky-400 bg-sky-950 border border-sky-800 px-2.5 py-0.5 rounded-full">Evening Blood Pressure Reset</span>
+        <h3 class="text-base font-bold text-white mt-2">5-Minute Slow Breathing Pacer</h3>
+        <p class="text-xs text-slate-300 mt-1 max-w-md mx-auto leading-relaxed">
+          Breathing at 6 breaths per minute (4.5s nose inhale, 5.5s slow mouth exhale) improves <span onclick="openTermModal('baroreceptor')" class="term-link">Baroreceptor Sensitivity ⓘ</span>—your body's built-in blood pressure thermostat.
+        </p>
+
+        <div class="my-8 flex flex-col items-center justify-center relative h-44">
+          <div id="breathVisual" class="w-28 h-28 rounded-full bg-sky-500/20 border-2 border-sky-400 flex items-center justify-center breath-circle shadow-lg shadow-sky-950/50">
+            <div class="text-center">
+              <div id="breathPhaseText" class="text-sm font-bold text-white">Ready</div>
+              <div id="breathTimerText" class="text-xs font-mono text-sky-300 mt-0.5">05:00</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-center gap-3">
+          <button onclick="toggleBreathingPacer()" id="breathBtn" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow">
+            Start 5-Min Session
+          </button>
+          <button onclick="resetBreathingPacer()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-4 py-2.5 rounded-xl transition">
+            Reset
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: CLINICAL & BIOMETRIC LOG -->
+    <section id="tab-metrics" class="hidden space-y-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <h2 class="text-base font-bold text-white mb-1">Blood Pressure & Body Recomp Log</h2>
+        <p class="text-xs text-slate-400 mb-4">Measure blood pressure in the morning after sitting quietly for 5 minutes with feet flat on the floor.</p>
+        
+        <div class="grid grid-cols-3 gap-3 mb-4">
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Top Number (Systolic)</label>
+            <input id="inputSys" type="number" placeholder="124" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Bottom (Diastolic)</label>
+            <input id="inputDia" type="number" placeholder="78" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Morning Weight (lbs)</label>
+            <input id="inputWeight" type="number" step="0.1" placeholder="190.0" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none">
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="saveBiometrics()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 rounded-lg transition">
+            Save Today's Log
+          </button>
+          <span id="saveBioToast" class="hidden text-xs font-semibold text-emerald-400">✓ Saved!</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">14-Day Cycle Log History</h3>
+          <button onclick="openResetConfirmModal()" class="text-[11px] text-rose-400 hover:underline">Reset Current Cycle Checkmarks</button>
+        </div>
+        <div id="biometricsHistoryTable" class="space-y-2 text-xs"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CLINICAL TERM DEFINITION POPUP MODAL -->
+  <div id="termModalBackdrop" onclick="closeTermModal(event)" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div onclick="event.stopPropagation()" class="bg-slate-900 border-t sm:border border-slate-700 w-full max-w-lg rounded-t-2xl sm:rounded-2xl p-5 shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div class="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
+        <div>
+          <span id="modalTermCategory" class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-950/80 border border-emerald-800 px-2 py-0.5 rounded">Plain-English Clinical Guide</span>
+          <h3 id="modalTermTitle" class="text-lg font-bold text-white mt-1.5">Term Title</h3>
+        </div>
+        <button onclick="closeTermModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg px-2.5 py-1 text-sm font-bold">✕</button>
+      </div>
+
+      <div id="modalTermBody" class="mt-4 space-y-4 text-xs leading-relaxed">
+        <!-- Populated dynamically -->
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-slate-800 flex justify-between items-center">
+        <button onclick="openGlossaryIndex()" class="text-xs text-emerald-400 hover:underline font-medium">View All Clinical Terms</button>
+        <button onclick="closeTermModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition">Got It</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM RESET CONFIRMATION MODAL (No alert/confirm) -->
+  <div id="confirmModalBackdrop" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-5 shadow-2xl">
+      <h3 class="text-base font-bold text-white">Reset Cycle Checkmarks?</h3>
+      <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+        This will uncheck completed workouts and meals for Cycle #<span id="confirmCycleNum">1</span> so you can repeat the cycle fresh. Your saved lifting weights and BP logs will be kept safe.
+      </p>
+      <div class="mt-5 flex justify-end gap-2">
+        <button onclick="closeResetConfirmModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-3.5 py-2 rounded-lg">Cancel</button>
+        <button onclick="confirmResetCycleData()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-4 py-2 rounded-lg">Yes, Reset Checks</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 px-2 py-1.5">
+    <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
+      <button onclick="switchTab('workout')" id="nav-workout" class="flex flex-col items-center py-1.5 rounded-lg text-emerald-400">
+        <span class="text-base">🏋️‍♂️</span>
+        <span class="text-[11px] font-semibold mt-0.5">Training</span>
+      </button>
+      <button onclick="switchTab('nutrition')" id="nav-nutrition" class="flex flex-col items-center py-1.5 rounded-lg text-slate-400 hover:text-slate-200">
+        <span class="text-base">🥗</span>
+        <span class="text-[11px] font-semibold mt-0.5">Nutrition</span>
+      </button>
+      <button onclick="switchTab('recovery')" id="nav-recovery" class="flex flex-col items-center py-1.5 rounded-lg text-slate-400 hover:text-slate-200">
+        <span class="text-base">🧖‍♂️</span>
+        <span class="text-[11px] font-semibold mt-0.5">Sauna & Breath</span>
+      </button>
+      <button onclick="switchTab('metrics')" id="nav-metrics" class="flex flex-col items-center py-1.5 rounded-lg text-slate-400 hover:text-slate-200">
+        <span class="text-base">🩺</span>
+        <span class="text-[11px] font-semibold mt-0.5">BP & Log</span>
+      </button>
+    </div>
+  </nav>
+
+  <script>
+    // =========================================================================
+    // 1. PLAIN-LANGUAGE CLINICAL GLOSSARY DATABASE (POPUPS)
+    // =========================================================================
+    const clinicalGlossary = {
+      valsalva: {
+        category: "Cardiovascular Lifting Safety",
+        title: "Anti-Valsalva Rule (No Breath-Holding)",
+        simple: "Never hold your breath and bear down while struggling through a heavy rep. Instead, blow air out forcefully through your mouth during the hardest part of the lift, and breathe in smoothly through your nose as you lower the weight.",
+        why: "Holding your breath under load ('Valsalva maneuver') pinches off blood return to the heart and causes a massive, sudden spike in blood pressure (sometimes over 250/150 mmHg). Forceful exhalation acts as a pressure-release valve, keeping your arteries safe."
+      },
+      aps: {
+        category: "Time-Efficient Programming",
+        title: "Antagonist Paired Supersets (APS)",
+        simple: "Alternating between two exercises that work opposite muscle groups (for example, doing a Chest Press followed 60 seconds later by a Back Row).",
+        why: "While your chest rests, your back works. This cuts your workout time in half (fitting 20+ sets into 45 minutes), keeps your heart rate in a fat-burning zone, and prevents blood pressure from building up in one single cramped area."
+      },
+      zone2: {
+        category: "Cardio & Lipid Control",
+        title: "Zone 2 Cardio (Conversational Pace)",
+        simple: "A steady jogging or cycling pace where your heart rate stays between 122–136 BPM. You should be able to speak a full 12-word sentence out loud without gasping for air.",
+        why: "Zone 2 is the exact intensity where your muscle cells build new mitochondria and release an enzyme (Lipoprotein Lipase) that vacuums triglycerides (fat) out of your bloodstream while raising protective HDL ('good') cholesterol."
+      },
+      rpe: {
+        category: "Strength Pacing",
+        title: "RPE (Rate of Perceived Exertion)",
+        simple: "A 1-to-10 scale of how hard a set feels, based on how many extra reps you could have done with good form:\n• RPE 7.5 = You had 2 to 3 reps left in the tank.\n• RPE 8 = You had 2 clean reps left in the tank.\n• RPE 8.5 = You had 1 to 2 reps left in the tank.",
+        why: "Stopping 1 to 2 reps shy of total muscular failure builds 95%+ of the muscle growth of all-out failure, without causing the extreme adrenaline and blood pressure spikes that happen when you grind through a failing rep."
+      },
+      tempo: {
+        category: "Lifting Technique",
+        title: "Tempo (e.g., 3-1-1-0)",
+        simple: "A 4-digit cadence that tells you how many seconds each part of a rep takes:\n• 1st number (3): Lower the weight slowly for 3 seconds.\n• 2nd number (1): Pause for 1 second at the bottom stretch.\n• 3rd number (1): Lift the weight up forcefully in 1 second.\n• 4th number (0): Pause at the top before the next rep.",
+        why: "Slowing down the lowering phase forces your muscles (instead of momentum) to do the work. You stimulate more muscle growth using lighter, joint-friendly weights that don't strain your cardiovascular system."
+      },
+      peh: {
+        category: "Blood Pressure Control",
+        title: "Post-Exercise Hypotension (PEH)",
+        simple: "The natural 5 to 10 mmHg drop in blood pressure that lasts for up to 22 hours after a well-paced workout.",
+        why: "Finishing your leg workout with 10 minutes of easy Zone 2 cycling flushes out metabolic byproducts and keeps your blood vessels wide open, lowering your blood pressure for the rest of the workday."
+      },
+      soluble_fiber: {
+        category: "Cholesterol Reduction",
+        title: "Viscous Soluble Fiber ('The LDL Sponge')",
+        simple: "A thick, gel-forming fiber found in oats, psyllium husk, chia seeds, barley, and beans.",
+        why: "In your digestive tract, this fiber turns into a sponge that traps cholesterol-rich bile acids and carries them out of the body. Your liver then has to pull 'bad' LDL cholesterol directly out of your bloodstream to make new bile—lowering LDL by 10–15%."
+      },
+      sterols: {
+        category: "Cholesterol Reduction",
+        title: "Plant Sterols & Stanols (2g/day)",
+        simple: "Natural compounds found in plants (taken easily as a softgel with lunch and dinner) that look identical to cholesterol at the microscopic level.",
+        why: "Plant sterols park themselves in the cholesterol absorption 'parking spots' (NPC1L1 transporters) in your gut. Because the spots are full, real dietary and biliary cholesterol can't get into your bloodstream and gets flushed out instead."
+      },
+      nitrates: {
+        category: "Blood Vessel Support",
+        title: "Dietary Nitrates & L-Citrulline",
+        simple: "Natural nutrients found in beetroot powder, arugula, spinach, and L-citrulline that your body converts into Nitric Oxide gas.",
+        why: "Nitric Oxide tells the smooth muscle inside your artery walls to relax and widen. Taking this 45 minutes before training keeps your exercising blood pressure significantly lower while giving your muscles better blood flow."
+      },
+      na_k: {
+        category: "Blood Pressure Minerals",
+        title: "Sodium-to-Potassium Balance",
+        simple: "Keeping daily salt intake low (<1,800mg Sodium) while eating plenty of potassium-rich foods (>4,700mg from potatoes with skin, avocado, spinach, salmon, and bananas).",
+        why: "Sodium makes your body hold onto extra water, increasing pressure inside your arteries. Potassium acts as sodium's natural opposite: it signals your kidneys to flush out excess salt and directly relaxes blood vessel walls."
+      },
+      enos: {
+        category: "Sauna & Artery Health",
+        title: "Nitric Oxide Vessel Relaxation (eNOS)",
+        simple: "When exposed to dry sauna heat or steady cardio, the inner lining of your blood vessels releases Nitric Oxide to widen your arteries.",
+        why: "Over time, high blood pressure makes arteries stiff. Regular dry sauna sessions train your arteries to become flexible and elastic again, dropping 24-hour blood pressure by 6 to 10 points."
+      },
+      baroreceptor: {
+        category: "Nervous System Reset",
+        title: "Baroreceptor Sensitivity & Vagal Tone",
+        simple: "Baroreceptors are microscopic pressure sensors inside your main arteries that tell your brain whether to raise or lower your blood pressure via the Vagus nerve (Vagal Tone).",
+        why: "Chronic work stress and Stage 1 Hypertension cause these sensors to 'reset' too high. Practicing 5 minutes of slow breathing (4.5s in, 5.5s out) stimulates Vagal Tone, recalibrates these sensors downward, and switches off fight-or-flight adrenaline."
+      },
+      portfolio: {
+        category: "Medical Nutrition",
+        title: "The Portfolio Diet Protocol",
+        simple: "A nutrition strategy that combines 4 cholesterol-lowering foods in the same day: (1) Gel-forming soluble fiber, (2) Plant sterols, (3) Soy protein, and (4) Raw nuts (almonds/walnuts).",
+        why: "Clinical trials show that combining all 4 targets lowers 'bad' LDL cholesterol by 20% to 25% in just 4 weeks—similar to a starting dose of a statin medication."
+      },
+      dash: {
+        category: "Medical Nutrition",
+        title: "DASH Protocol (Dietary Approaches to Stop Hypertension)",
+        simple: "A meal framework built around potassium, magnesium, calcium, lean proteins, and whole Foods while minimizing added sodium.",
+        why: "Proven in landmark cardiology trials to lower systolic blood pressure by 8 to 11 mmHg within 14 days."
+      },
+      omega3: {
+        category: "Triglyceride & Heart Support",
+        title: "Marine Omega-3s (3g EPA & DHA)",
+        simple: "Essential anti-inflammatory fats found in wild salmon, sardines, trout, and high-potency fish oil.",
+        why: "Getting 3 grams of combined EPA/DHA daily tells your liver to slow down production of VLDL and triglycerides, reducing blood fat levels by 20–30% while soothing artery inflammation."
+      },
+      magnesium: {
+        category: "Evening Recovery",
+        title: "Magnesium Glycinate (400mg)",
+        simple: "A gentle, highly absorbable form of magnesium taken 30–60 minutes before bed.",
+        why: "Acts as a natural, mild calcium-channel blocker—helping blood vessels stay relaxed overnight while improving deep sleep quality."
+      }
+    };
+
+    // =========================================================================
+    // 2. ANIMATED SVG GENERATOR FOR EXERCISE DEMONSTRATIONS
+    // =========================================================================
+    function getExerciseSVG(visualType, targetMuscles) {
+      const svgs = {
+        push_upper: `
+          <svg viewBox="0 0 220 130" class="w-full h-32 bg-slate-950 rounded-lg border border-slate-800">
+            <!-- Bench & Guide -->
+            <line x1="35" y1="100" x2="185" y2="100" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+            <rect x="75" y="78" width="70" height="14" rx="5" fill="#475569"/>
+            <!-- Torso & Glowing Pecs/Delts -->
+            <ellipse cx="110" cy="72" rx="28" ry="11" fill="#10b981" class="anim-pulse"/>
+            <circle cx="110" cy="52" r="10" fill="#94a3b8"/>
+            <!-- Animated Arms & Dumbbells -->
+            <g class="anim-push">
+              <line x1="82" y1="72" x2="68" y2="42" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/>
+              <line x1="138" y1="72" x2="152" y2="42" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/>
+              <rect x="52" y="34" width="32" height="9" rx="3" fill="#34d399"/>
+              <rect x="136" y="34" width="32" height="9" rx="3" fill="#34d399"/>
+              <!-- Force Vector Arrows -->
+              <path d="M68 28 L68 16 M63 21 L68 15 L73 21" stroke="#38bdf8" stroke-width="2" fill="none"/>
+              <path d="M152 28 L152 16 M147 21 L152 15 L157 21" stroke="#38bdf8" stroke-width="2" fill="none"/>
+            </g>
+            <text x="12" y="120" fill="#94a3b8" font-size="9" font-family="monospace">EXHALE UP ↑ | INHALE DOWN ↓</text>
+          </svg>
+        `,
+        row_horizontal: `
+          <svg viewBox="0 0 220 130" class="w-full h-32 bg-slate-950 rounded-lg border border-slate-800">
+            <!-- Cable Column -->
+            <line x1="35" y1="20" x2="35" y2="110" stroke="#475569" stroke-width="6" stroke-linecap="round"/>
+            <!-- Bench & Chest Support Pad -->
+            <line x1="100" y1="48" x2="112" y2="85" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+            <!-- Torso & Glowing Lats/Upper Back -->
+            <circle cx="122" cy="36" r="9" fill="#94a3b8"/>
+            <line x1="122" y1="46" x2="132" y2="90" stroke="#64748b" stroke-width="12" stroke-linecap="round"/>
+            <ellipse cx="132" cy="65" rx="10" ry="18" fill="#10b981" class="anim-pulse"/>
+            <!-- Animated Cable & Rowing Arm -->
+            <g class="anim-row">
+              <line x1="38" y1="62" x2="115" y2="62" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4 2"/>
+              <circle cx="115" cy="62" r="5" fill="#34d399"/>
+              <line x1="128" y1="54" x2="115" y2="62" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/>
+            </g>
+            <text x="12" y="120" fill="#94a3b8" font-size="9" font-family="monospace">CHEST PAD SUPPORT | EXHALE AS YOU PULL ←</text>
+          </svg>
+        `,
+        pull_vertical: `
+          <svg viewBox="0 0 220 130" class="w-full h-32 bg-slate-950 rounded-lg border border-slate-800">
+            <!-- Overhead Pulley -->
+            <line x1="60" y1="14" x2="160" y2="14" stroke="#475569" stroke-width="5" stroke-linecap="round"/>
+            <line x1="110" y1="14" x2="110" y2="55" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3 3"/>
+            <!-- Seated Torso & Glowing Lats -->
+            <circle cx="110" cy="68" r="9" fill="#94a3b8"/>
+            <path d="M90 78 L130 78 L122 110 L98 110 Z" fill="#10b981" class="anim-pulse"/>
+            <!-- Animated Pulldown Bar & Arms -->
+            <g class="anim-pull">
+              <line x1="72" y1="42" x2="148" y2="42" stroke="#34d399" stroke-width="5" stroke-linecap="round"/>
+              <line x1="78" y1="42" x2="94" y2="80" stroke="#e2e8f0" stroke-width="4.5" stroke-linecap="round"/>
+              <line x1="142" y1="42" x2="126" y2="80" stroke="#e2e8f0" stroke-width="4.5" stroke-linecap="round"/>
+            </g>
+            <text x="12" y="122" fill="#94a3b8" font-size="9" font-family="monospace">DRIVE ELBOWS TO RIBS ↓ | EXHALE PULLING DOWN</text>
+          </svg>
+        `,
+        squat_lower: `
+          <svg viewBox="0 0 220 130" class="w-full h-32 bg-slate-950 rounded-lg border border-slate-800">
+            <!-- Floor -->
+            <line x1="40" y1="108" x2="180" y2="108" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+            <!-- Animated Squatting Figure -->
+            <g class="anim-squat">
+              <circle cx="105" cy="28" r="8" fill="#94a3b8"/>
+              <!-- Back Support / Torso -->
+              <line x1="105" y1="36" x2="95" y2="68" stroke="#cbd5e1" stroke-width="9" stroke-linecap="round"/>
+              <!-- Glowing Quads & Glutes -->
+              <line x1="95" y1="68" x2="122" y2="82" stroke="#10b981" stroke-width="9" stroke-linecap="round" class="anim-pulse"/>
+              <!-- Lower Leg -->
+              <line x1="122" y1="82" x2="112" y2="105" stroke="#e2e8f0" stroke-width="6" stroke-linecap="round"/>
+              <!-- Force Arrow -->
+              <path d="M148 75 L148 42 M143 48 L148 41 L153 48" stroke="#34d399" stroke-width="2.5" fill="none"/>
+            </g>
+            <text x="12" y="122" fill="#94a3b8" font-size="9" font-family="monospace">CONTROL DOWN 3s ↓ | EXHALE DRIVING UP ↑</text>
+          </svg>
+        `,
+        hinge_lower: `
+          <svg viewBox="0 0 220 130" class="w-full h-32 bg-slate-950 rounded-lg border border-slate-800">
+            <line x1="40" y1="108" x2="180" y2="108" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+            <!-- Hinging Figure -->
+            <circle cx="132" cy="42" r="8" fill="#94a3b8"/>
+            <line x1="132" y1="48" x2="88" y2="66" stroke="#cbd5e1" stroke-width="9" stroke-linecap="round"/>
+            <!-- Glowing Hamstrings & Glutes -->
+            <line x1="88" y1="66" x2="96" y2="105" stroke="#10b981" stroke-width="9" stroke-linecap="round" class="anim-pulse"/>
+            <!-- Dumbbell moving along shins -->
+            <g class="anim-squat">
+              <line x1="124" y1="52" x2="124" y2="82" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round"/>
+              <rect x="112" y="80" width="24" height="9" rx="3" fill="#34d399"/>
+            </g>
+            <!-- Hip Hinge Arrow -->
+            <path d="M75 66 L58 66 M63 61 L57 66 L63 71" stroke="#38bdf8" stroke-width="2" fill="none"/>
+            <text x="12" y="122" fill="#94a3b8" font-size="9" font-family="monospace">PUSH HIPS BACK ← | FLAT SPINE | EXHALE UP</text>
+          </svg>
+        `,
+        isolation_cable: `
+          <svg viewBox="0 0 220 130" class="w-full h-32 bg-slate-950 rounded-lg border border-slate-800">
+            <circle cx="110" cy="34" r="9" fill="#94a3b8"/>
+            <rect x="96" y="45" width="28" height="45" rx="6" fill="#475569"/>
+            <!-- Glowing Delts / Arms -->
+            <circle cx="92" cy="52" r="8" fill="#10b981" class="anim-pulse"/>
+            <circle cx="128" cy="52" r="8" fill="#10b981" class="anim-pulse"/>
+            <g class="anim-push">
+              <line x1="92" y1="52" x2="60" y2="58" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/>
+              <line x1="128" y1="52" x2="160" y2="58" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="58" cy="58" r="4" fill="#34d399"/>
+              <circle cx="162" cy="58" r="4" fill="#34d399"/>
+            </g>
+            <text x="12" y="120" fill="#94a3b8" font-size="9" font-family="monospace">CONTROLLED ARC | SMOOTH BREATHING</text>
+          </svg>
+        `,
+        track_cardio: `
+          <svg viewBox="0 0 220 130" class="w-full h-32 bg-slate-950 rounded-lg border border-slate-800">
+            <!-- 400m Oval Track -->
+            <rect x="35" y="24" width="150" height="72" rx="36" fill="none" stroke="#334155" stroke-width="12"/>
+            <rect x="35" y="24" width="150" height="72" rx="36" fill="none" stroke="#10b981" stroke-width="3" class="anim-track"/>
+            <text x="110" y="57" text-anchor="middle" fill="#34d399" font-size="11" font-weight="bold" font-family="monospace">400m OVAL TRACK</text>
+            <text x="110" y="72" text-anchor="middle" fill="#38bdf8" font-size="9" font-family="monospace">RHYTHMIC NASAL/MOUTH BREATHING</text>
+            <text x="12" y="120" fill="#94a3b8" font-size="9" font-family="monospace">STRAIGHTS: WORK PACE | CURVES: EASY RECOVERY</text>
+          </svg>
+        `,
+        sauna_recovery: `
+          <svg viewBox="0 0 220 130" class="w-full h-32 bg-slate-950 rounded-lg border border-slate-800">
+            <!-- Heat Waves & Vessel Dilation -->
+            <circle cx="110" cy="60" r="28" fill="none" stroke="#10b981" stroke-width="4" class="anim-pulse"/>
+            <circle cx="110" cy="60" r="16" fill="#059669" opacity="0.4" class="anim-pulse"/>
+            <text x="110" y="64" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">ARTERY RELAXATION</text>
+            <text x="12" y="120" fill="#94a3b8" font-size="9" font-family="monospace">4s INHALE • 4s HOLD • 4s EXHALE • 4s HOLD</text>
+          </svg>
+        `
+      };
+      return svgs[visualType] || svgs.isolation_cable;
+    }
+
+    // =========================================================================
+    // 3. 14-DAY CLINICAL PROTOCOL DATABASE (WITH EXPANDABLE DEMO GUIDES)
+    // =========================================================================
+    const workoutTemplates = {
+      mon: {
+        title: "Upper Body Hypertrophy A + Dry Sauna",
+        facility: "Athletic Country Club",
+        duration: "70 Mins (8m Warm-Up | 45m Lift | 15m Sauna)",
+        isRest: false,
+        blocks: [
+          {
+            code: "Warm-Up",
+            name: "Blood-Flow & Joint Warm-Up (8 Mins)",
+            sets: 1, reps: "8 mins", tempo: "Continuous", rpeW1: "RPE 5", rpeW2: "RPE 5", rest: 0,
+            note: "4 mins brisk incline treadmill walk + 4 mins shoulder mobility and band pull-aparts to open up blood vessels before lifting.",
+            demo: {
+              visual: "track_cardio",
+              muscles: "Heart, Blood Vessels, Upper Back & Shoulder Joints",
+              steps: [
+                "Walk for 4 minutes on a 4–5% treadmill incline at a brisk pace to gently raise body temperature.",
+                "Perform 15 band pull-aparts and 8 thoracic spine (upper back) rotations per side.",
+                "Do 1 warm-up set of your first chest and back exercise at 50% weight before starting working sets."
+              ],
+              breathing: "Breathe smoothly in through your nose and out through your mouth.",
+              avoid: "Never walk straight from your car to a heavy bench press—cold arteries constrict and spike blood pressure.",
+              ytQuery: "dynamic+upper+body+warm+up+band+pull+aparts"
+            }
+          },
+          {
+            code: "1A",
+            name: "Incline Dumbbell Bench Press (30° Bench)",
+            sets: 4, reps: "8–10", tempo: "3-1-1-0", rpeW1: "RPE 8", rpeW2: "RPE 8.5 (+2.5-5 lbs or +1 rep)", rest: 60,
+            note: "Paired with 1B (<span onclick=\"event.stopPropagation(); openTermModal('aps')\" class=\"term-link\">Antagonist Superset ⓘ</span>). Lower slowly for 3 seconds, pause 1 sec, press up while blowing air out.",
+            demo: {
+              visual: "push_upper",
+              muscles: "Upper Chest (Clavicular Pecs), Front Shoulders, Triceps",
+              steps: [
+                "Set the adjustable bench to a 30-degree incline (one or two notches up from flat).",
+                "Plant feet flat on the floor and tuck your shoulder blades back into the pad.",
+                "Lower the dumbbells over 3 seconds with elbows tucked at a 45° angle (not flared straight out).",
+                "Pause 1 second at chest level, then press up strongly without clanking the weights together."
+              ],
+              breathing: "Inhale smoothly through your nose during the 3-second lowering phase; exhale forcefully through your mouth as you press the dumbbells up.",
+              avoid: "Do not hold your breath at the bottom sticking point or arch your lower back off the bench.",
+              ytQuery: "incline+dumbbell+bench+press+proper+form"
+            }
+          },
+          {
+            code: "1B",
+            name: "Chest-Supported Machine T-Bar or Cable Row",
+            sets: 4, reps: "10–12", tempo: "2-1-1-1", rpeW1: "RPE 8", rpeW2: "RPE 8.5 (+1-2 reps)", rest: 60,
+            note: "Resting your chest against the pad removes lower-back strain and keeps blood pressure much steadier than bent-over barbell rows.",
+            demo: {
+              visual: "row_horizontal",
+              muscles: "Mid-Back (Rhomboids, Traps), Lats, Rear Shoulders",
+              steps: [
+                "Adjust the seat height so the top of the chest pad sits comfortably against your sternum.",
+                "Let your shoulders stretch slightly forward at the start of each rep.",
+                "Drive your elbows back past your ribs and squeeze your shoulder blades together for 1 full second.",
+                "Lower the handles back out over 2 controlled seconds."
+              ],
+              breathing: "Exhale out your mouth as you pull the handles toward your body; inhale as you extend your arms forward.",
+              avoid: "Avoid pushing your stomach hard into the pad or jerking your torso backward to move the weight.",
+              ytQuery: "chest+supported+machine+row+form"
+            }
+          },
+          {
+            code: "2A",
+            name: "Neutral-Grip Lat Pulldown (Palms Facing In)",
+            sets: 3, reps: "10–12", tempo: "3-0-1-1", rpeW1: "RPE 8", rpeW2: "RPE 8.5", rest: 60,
+            note: "Superset with 2B. Pull elbows down toward your hips and hold the bottom squeeze for 1 second.",
+            demo: {
+              visual: "pull_vertical",
+              muscles: "Latissimus Dorsi (Back Width), Biceps, Forearms",
+              steps: [
+                "Attach a parallel/neutral-grip handle (palms facing each other about shoulder-width apart).",
+                "Lock your thighs comfortably under the knee pad and keep your chest tall.",
+                "Pull the handle down to your upper chest by driving your elbows down toward your pockets.",
+                "Squeeze your lats for 1 second, then take 3 full seconds to let the weight stretch your arms back overhead."
+              ],
+              breathing: "Exhale as you pull the bar down to your chest; inhale slowly as your arms reach back overhead.",
+              avoid: "Don't swing your upper body backward like a pendulum to yank the weight down.",
+              ytQuery: "neutral+grip+lat+pulldown+form"
+            }
+          },
+          {
+            code: "2B",
+            name: "Seated Machine Shoulder Press (75° High Incline)",
+            sets: 3, reps: "10–12", tempo: "3-0-1-0", rpeW1: "RPE 7.5", rpeW2: "RPE 8", rest: 60,
+            note: "Using a machine or 75° bench keeps your spine supported. Never hold your breath pressing overhead.",
+            demo: {
+              visual: "push_upper",
+              muscles: "Front & Side Deltoids (Shoulders), Triceps",
+              steps: [
+                "Sit with your entire back glued firmly against the backrest pad.",
+                "Grip the handles slightly wider than shoulder-width (or use the neutral palms-in handles if preferred for shoulder comfort).",
+                "Press overhead until arms are nearly straight (stop just shy of locking out your elbows).",
+                "Lower the handles slowly over 3 seconds down to chin/ear level."
+              ],
+              breathing: "Blow air out forcefully as you press overhead; breathe in through your nose on the 3-second descent.",
+              avoid: "Overhead pressing naturally raises blood pressure slightly—never grind a failing rep or hold your breath.",
+              ytQuery: "seated+machine+shoulder+press+form"
+            }
+          },
+          {
+            code: "3A",
+            name: "Dual-Rope Cable Face Pulls",
+            sets: 3, reps: "15", tempo: "2-0-1-2", rpeW1: "RPE 8", rpeW2: "RPE 8", rest: 45,
+            note: "Pull the rope toward your forehead while rotating thumbs back. Hold for 2 seconds to bulletproof shoulder posture.",
+            demo: {
+              visual: "row_horizontal",
+              muscles: "Rear Deltoids, Rotator Cuff, Mid/Lower Traps",
+              steps: [
+                "Set a cable pulley at upper-chest or eye height with a rope attachment.",
+                "Grip the rope with thumbs pointing backward and step back until arms are straight.",
+                "Pull the center of the rope toward your forehead while pulling the ends apart ('hitting a double-biceps pose').",
+                "Hold that back squeeze for 2 full seconds before returning smoothly."
+              ],
+              breathing: "Exhale as you pull the rope toward your face and hold; inhale as you return.",
+              avoid: "Don't go too heavy—this is a posture and rotator-cuff muscle builder, not a whole-body tug-of-war.",
+              ytQuery: "cable+face+pulls+proper+form"
+            }
+          },
+          {
+            code: "3B",
+            name: "Incline DB Curl + Rope Triceps Pressdown",
+            sets: 3, reps: "12–15 each", tempo: "2-0-1-0", rpeW1: "RPE 8.5", rpeW2: "RPE 8.5", rest: 45,
+            note: "Arm Superset: Do 12–15 curls, walk straight to the cable and do 12–15 pressdowns, then rest 45 seconds.",
+            demo: {
+              visual: "isolation_cable",
+              muscles: "Biceps Long Head & Triceps Lateral/Medial Heads",
+              steps: [
+                "Incline Curl: Sit back on a 45–60° bench with arms hanging straight down behind your torso. Curl up without moving your elbows forward.",
+                "Rope Pressdown: Stand tall at a high cable pulley, pin your elbows to your ribs, and press the rope down while spreading the ends apart at the bottom.",
+                "Control the 2-second return on both movements."
+              ],
+              breathing: "Exhale on the curl up / press down; inhale as the weight returns.",
+              avoid: "Keep your shoulders relaxed and down away from your ears.",
+              ytQuery: "incline+dumbbell+curl+and+rope+tricep+pushdown+form"
+            }
+          },
+          {
+            code: "Sauna",
+            name: "Post-Lift Dry Sauna + Mild Cool Shower (15 Mins)",
+            sets: 1, reps: "12m Sauna + 3m Cool Shower", tempo: "Slow Breathing", rpeW1: "Recovery", rpeW2: "Recovery", rest: 0,
+            note: "12 mins in 175–190°F Dry Sauna to widen blood vessels (<span onclick=\"event.stopPropagation(); openTermModal('enos')\" class=\"term-link\">eNOS ⓘ</span>), followed by a 3-min lukewarm/cool shower (65–70°F).",
+            demo: {
+              visual: "sauna_recovery",
+              muscles: "Arterial Lining (Endothelium) & Parasympathetic Nervous System",
+              steps: [
+                "Wipe down and enter the dry sauna for 12 minutes on the middle bench.",
+                "Practice slow 4-second nasal inhales and 6-second mouth exhales while seated.",
+                "Step into a lukewarm-to-cool shower (65–70°F) for 3 minutes to gently stop sweating.",
+                "Drink 16 oz water with a high-potassium, low-sodium electrolyte mix."
+              ],
+              breathing: "Slow 4-second nose inhale, 6-second mouth exhale.",
+              avoid: "Do NOT jump into an icy cold plunge (<55°F)—extreme cold shocks blood vessels shut and spikes blood pressure.",
+              ytQuery: "sauna+cardiovascular+benefits+blood+pressure"
+            }
+          }
+        ]
+      },
+      tue: {
+        title: "Lower Body Hypertrophy A + Zone 2 Bike Flush",
+        facility: "Athletic Country Club",
+        duration: "68 Mins (8m Warm-Up | 45m Lift | 10m Bike Flush | 5m Cool)",
+        isRest: false,
+        blocks: [
+          {
+            code: "Warm-Up",
+            name: "Lower Body Blood-Flow Prep (8 Mins)",
+            sets: 1, reps: "8 mins", tempo: "Dynamic", rpeW1: "RPE 5", rpeW2: "RPE 5", rest: 0,
+            note: "4 mins stationary bike + leg swings, hip openers, and bodyweight squats.",
+            demo: {
+              visual: "track_cardio",
+              muscles: "Hips, Knees, Ankles & Lower-Body Vascular Bed",
+              steps: [
+                "Spin easily on an upright or recumbent bike for 4 minutes (90 RPM, light resistance).",
+                "Perform 10 front-to-back and side-to-side leg swings per leg holding a rack.",
+                "Perform 10 slow bodyweight squats and 10 glute bridges on a mat."
+              ],
+              breathing: "Continuous rhythmic nasal breathing.",
+              avoid: "Never start heavy leg machines with cold knees or tight hips.",
+              ytQuery: "dynamic+lower+body+warm+up+routine"
+            }
+          },
+          {
+            code: "1A",
+            name: "Seated Leg Curl Machine",
+            sets: 4, reps: "10–12", tempo: "3-0-1-1", rpeW1: "RPE 8", rpeW2: "RPE 8.5", rest: 75,
+            note: "Paired with 1B. Training hamstrings first cushions the knee joint and makes your squats feel stronger and smoother.",
+            demo: {
+              visual: "hinge_lower",
+              muscles: "Hamstrings (Knee Flexors)",
+              steps: [
+                "Adjust the back pad so the back of your knees sit flush with the edge of the seat.",
+                "Lock the thigh pad firmly down on top of your lower quads just above the knees.",
+                "Curl your lower legs down and back as far as possible and squeeze for 1 full second.",
+                "Take 3 controlled seconds to let the pad rise back up."
+              ],
+              breathing: "Exhale forcefully as you curl the weight down; inhale during the 3-second return.",
+              avoid: "prefers seated leg curls over lying stomach curls because lying face-down compresses the abdomen and raises blood pressure.",
+              ytQuery: "seated+leg+curl+machine+proper+form"
+            }
+          },
+          {
+            code: "1B",
+            name: "Pendulum Squat or Hack Squat Machine",
+            sets: 4, reps: "8–10", tempo: "3-1-1-0", rpeW1: "RPE 7.5", rpeW2: "RPE 8", rest: 75,
+            note: "Keeps your head above your heart (unlike a 45° angled leg press). Exhale continuously as you drive out of the bottom.",
+            demo: {
+              visual: "squat_lower",
+              muscles: "Quadriceps, Glutes, Adductors",
+              steps: [
+                "Place your feet shoulder-width apart in the middle of the footplate and press your back flat into the pad.",
+                "Unlock the safety handles and lower yourself slowly over 3 seconds until thighs are parallel to the platform.",
+                "Pause 1 second at the bottom while keeping tension in your legs.",
+                "Drive through your mid-foot and heels to stand back up without locking your knees hard."
+              ],
+              breathing: "Take a controlled breath in as you lower down; blow air out forcefully through pursed lips the entire way up.",
+              avoid: "Avoid the 45-degree sled leg press where your head is lower than your feet—that position causes huge spikes in arterial pressure.",
+              ytQuery: "hack+squat+machine+proper+form"
+            }
+          },
+          {
+            code: "2A",
+            name: "Dumbbell Romanian Deadlift (RDL)",
+            sets: 3, reps: "10–12", tempo: "3-1-1-0", rpeW1: "RPE 8", rpeW2: "RPE 8.5", rest: 60,
+            note: "Superset with 2B. Push your hips straight back like closing a car door with your glutes; pause 1 second at mid-shin.",
+            demo: {
+              visual: "hinge_lower",
+              muscles: "Hamstrings, Glutes, Lower/Mid Back Stabilizers",
+              steps: [
+                "Stand tall holding dumbbells in front of your thighs with a soft 15-degree bend in your knees.",
+                "Push your hips straight back toward the wall behind you while keeping the dumbbells grazing your legs.",
+                "Stop at mid-shin when you feel a deep hamstring stretch (keep your spine completely flat) and pause 1 second.",
+                "Drive your hips forward to stand tall."
+              ],
+              breathing: "Inhale on the 3-second hip hinge down; exhale strongly as you drive your hips forward to stand.",
+              avoid: "Don't round your lower back to reach the floor—range of motion ends when your hips stop moving backward.",
+              ytQuery: "dumbbell+romanian+deadlift+form"
+            }
+          },
+          {
+            code: "2B",
+            name: "Dumbbell Bulgarian Split Squat",
+            sets: 3, reps: "10 / leg", tempo: "2-1-1-0", rpeW1: "RPE 7.5", rpeW2: "RPE 8", rest: 60,
+            note: "Single-leg training builds high leg muscle mass using half the total spinal load, keeping systemic blood pressure much lower.",
+            demo: {
+              visual: "squat_lower",
+              muscles: "Quadriceps, Glutes, Hip Stabilizers",
+              steps: [
+                "Stand about 2 feet in front of a bench or padded roller and rest the laces of your back foot on the pad.",
+                "Hold dumbbells at your sides (or hold one dumbbell in one hand and hold a rack with the other hand for stability).",
+                "Lower your back knee toward the floor over 2 seconds with a slight forward torso lean.",
+                "Drive through your front foot to stand back up."
+              ],
+              breathing: "Inhale down; exhale as you press through your front leg.",
+              avoid: "Don't push off your back foot—let the front leg do 90% of the work.",
+              ytQuery: "dumbbell+bulgarian+split+squat+form"
+            }
+          },
+          {
+            code: "3A",
+            name: "Standing Machine Calf Raise",
+            sets: 3, reps: "12–15", tempo: "2-2-1-1", rpeW1: "RPE 8.5", rpeW2: "RPE 8.5", rest: 45,
+            note: "Pause 2 full seconds at the bottom stretch. Strong calves act as your body's 'second heart' to pump venous blood back up.",
+            demo: {
+              visual: "isolation_cable",
+              muscles: "Gastrocnemius & Soleus (Calves — Venous Muscle Pump)",
+              steps: [
+                "Place the balls of your feet on the platform edge with knees straight (but not hyperextended).",
+                "Lower your heels down for 2 seconds into a deep stretch and hold for 2 full seconds at the bottom.",
+                "Press all the way up onto your tiptoes and squeeze for 1 second."
+              ],
+              breathing: "Breathe rhythmically—exhale on the press up, inhale on the lower.",
+              avoid: "Never bounce quickly at the bottom—bouncing only uses Achilles tendon elasticity instead of muscle.",
+              ytQuery: "standing+calf+raise+proper+form"
+            }
+          },
+          {
+            code: "3B",
+            name: "Cable Pallof Press (Anti-Rotation Core)",
+            sets: 3, reps: "12 / side", tempo: "2-2-1-2", rpeW1: "RPE 8", rpeW2: "RPE 8", rest: 45,
+            note: "Builds deep core strength upright without floor crunches (which compress the abdomen). Breathe continuously during the hold.",
+            demo: {
+              visual: "row_horizontal",
+              muscles: "Obliques, Transverse Abdominis (Deep Core Belt)",
+              steps: [
+                "Set a single D-handle on a cable column at sternum height and stand sideways to the machine.",
+                "Hold the handle at the center of your chest with both hands and step out to create tension.",
+                "Press the handle straight out in front of your chest and hold for 2 seconds while resisting the cable's pull.",
+                "Return slowly to your chest for 12 reps, then face the opposite direction."
+              ],
+              breathing: "Take shallow, continuous breaths during the 2-second extended hold.",
+              avoid: "Don't let your shoulders twist toward the cable column.",
+              ytQuery: "cable+pallof+press+form"
+            }
+          },
+          {
+            code: "Flush",
+            name: "Post-Lift Zone 2 Bike Blood-Pressure Flush (10 Mins)",
+            sets: 1, reps: "10 Mins", tempo: "125–135 BPM", rpeW1: "Zone 2", rpeW2: "Zone 2", rest: 0,
+            note: "Easy 10-minute spin on a stationary bike triggers an <span onclick=\"event.stopPropagation(); openTermModal('endothelial_flush')\" class=\"term-link\">Endothelial Flush ⓘ</span> and <span onclick=\"event.stopPropagation(); openTermModal('peh')\" class=\"term-link\">Post-Exercise Hypotension (PEH) ⓘ</span>—dropping your BP for the next 20 hours.",
+            demo: {
+              visual: "track_cardio",
+              muscles: "Lower-Body Capillary Network & Vascular Endothelium",
+              steps: [
+                "Hop on an upright or recumbent bike immediately after your last calf/core set.",
+                "Pedal smoothly at 80–90 RPM with light-to-moderate resistance keeping HR at 125–135 BPM.",
+                "Spend the final 2 minutes slowing your breathing down to lower your heart rate below 110 BPM."
+              ],
+              breathing: "Nasal inhale (4 seconds), relaxed mouth exhale (6 seconds).",
+              avoid: "Keep it easy—this is an active vascular flush, not a high-intensity spin class.",
+              ytQuery: "zone+2+cycling+benefits+blood+pressure"
+            }
+          }
+        ]
+      },
+      wed: {
+        title: "Outdoor Track: Zone 2 Fat-Burn & 100m Strides",
+        facility: "Neighborhood Outdoor Running Track",
+        duration: "60–65 Mins",
+        isRest: false,
+        blocks: [
+          {
+            code: "Warm-Up",
+            name: "Track Dynamic Warm-Up (8 Mins)",
+            sets: 1, reps: "400m Walk + Drills", tempo: "Easy", rpeW1: "RPE 4", rpeW2: "RPE 4", rest: 0,
+            note: "Walk 1 lap (400m) briskly, followed by leg swings, A-skips, and ankle hops.",
+            demo: {
+              visual: "track_cardio",
+              muscles: "Calves, Achilles, Hips & Cardiopulmonary System",
+              steps: [
+                "Walk 1 full lap (400m) briskly to lubricate joints and gradually elevate heart rate.",
+                "Perform 20 yards of marching A-skips, high knees, and butt kicks.",
+                "Perform 10 leg swings per side."
+              ],
+              breathing: "Easy nasal breathing.",
+              avoid: "Don't start running at full Zone 2 pace from the first step—let your heart rate climb gradually over 5 minutes.",
+              ytQuery: "running+track+dynamic+warm+up+drills"
+            }
+          },
+          {
+            code: "Main",
+            name: "Continuous Zone 2 Run (Triglyceride & Fat Scavenger)",
+            sets: 1, reps: "W1: 40 Mins | W2: 44 Mins", tempo: "122–136 BPM", rpeW1: "40 Mins @ Zone 2", rpeW2: "44 Mins @ Zone 2", rest: 0,
+            note: "Hold a strict <span onclick=\"event.stopPropagation(); openTermModal('zone2')\" class=\"term-link\">Zone 2 Pace ⓘ</span> (122–136 BPM) where you can speak a full sentence comfortably. Clears blood triglycerides and boosts HDL.",
+            demo: {
+              visual: "track_cardio",
+              muscles: "Slow-Twitch Muscle Fibers, Heart Left Ventricle, Mitochondrial Network",
+              steps: [
+                "Set your watch heart-rate alert to 136 BPM max.",
+                "Run at a smooth, relaxed rhythm with quick, light steps (~170 steps/minute).",
+                "Test yourself every 10 minutes: recite a 12-word sentence out loud. If you have to gasp, slow down slightly (even if that means mixing in a 30-second brisk walk on warm days)."
+              ],
+              breathing: "Breathe in for 3–4 steps, breathe out for 3–4 steps.",
+              avoid: "Avoid turning this into a hard 'grey-zone' race (150+ BPM)—going too hard switches your body from burning fat/lipids to burning only sugar.",
+              ytQuery: "how+to+run+in+zone+2+heart+rate"
+            }
+          },
+          {
+            code: "Strides",
+            name: "100m Straightaway Strides (Walk the Curves)",
+            sets: 1, reps: "W1: 4x100m | W2: 6x100m", tempo: "Smooth 80% Speed", rpeW1: "4 x 100m (RPE 7.5)", rpeW2: "6 x 100m (RPE 8)", rest: 75,
+            note: "Run the 100m straightaway smoothly at 80% speed (fast and athletic, NOT an all-out sprint), then walk the 100m curve slowly (60–75s) to recover.",
+            demo: {
+              visual: "track_cardio",
+              muscles: "Fast-Twitch Muscle Fibers, Running Economy & Arterial Elasticity",
+              steps: [
+                "Start at the beginning of the 100m straightaway.",
+                "Spend the first 25m smoothly picking up speed, hold a fast, relaxed '80% athletic cruise' for the middle 50m, and coast smoothly through the final 25m.",
+                "Walk the entire 100m curved section of the track slowly (60–75 seconds) until breathing feels normal before starting the next straightaway."
+              ],
+              breathing: "Rhythmic forceful breathing during the 15-second run; slow nasal recovery breathing on the curve walk.",
+              avoid: "Never strain your face or neck like a 100m Olympic finals sprint—stay loose and smooth at 80% effort.",
+              ytQuery: "how+to+run+100m+strides+on+track"
+            }
+          },
+          {
+            code: "Cool-Down",
+            name: "Parasympathetic Track Walk (5 Mins)",
+            sets: 1, reps: "400m Walk", tempo: "4s In / 6s Out", rpeW1: "HR < 110", rpeW2: "HR < 110", rest: 0,
+            note: "Walk 1 full lap slowly with controlled nasal breathing until heart rate drops below 110 BPM.",
+            demo: {
+              visual: "sauna_recovery",
+              muscles: "Vagus Nerve & Cardiovascular Baroreceptors",
+              steps: [
+                "Walk the outer lane of the track slowly for 400 meters.",
+                "Inhale through your nose for 4 steps, exhale slowly through pursed lips for 6 steps.",
+                "Finish with 60 seconds of light calf and hamstring stretching."
+              ],
+              breathing: "4-step nasal inhale, 6-step mouth exhale.",
+              avoid: "Don't sit down in a car immediately after running—walking prevents blood pooling in the lower legs.",
+              ytQuery: "post+run+cooldown+breathing"
+            }
+          }
+        ]
+      },
+      thu: {
+        title: "Upper Body Hypertrophy B + Dry Sauna",
+        facility: "Athletic Country Club",
+        duration: "70 Mins (8m Warm-Up | 45m Lift | 15m Sauna)",
+        isRest: false,
+        blocks: [
+          {
+            code: "Warm-Up",
+            name: "Blood-Flow & Shoulder Warm-Up (8 Mins)",
+            sets: 1, reps: "8 mins", tempo: "Continuous", rpeW1: "RPE 5", rpeW2: "RPE 5", rest: 0,
+            note: "4 mins incline walk or rower + 4 mins cable external rotations and scapular push-ups.",
+            demo: {
+              visual: "track_cardio",
+              muscles: "Rotator Cuff, Scapular Stabilizers & Endothelium",
+              steps: [
+                "4 minutes brisk incline treadmill walk or easy rowing machine.",
+                "15 band pull-aparts + 10 arm circles forward/backward.",
+                "1 light warm-up set of Chest Press and High Row."
+              ],
+              breathing: "Smooth nasal inhale, mouth exhale.",
+              avoid: "Never skip rotator cuff prep on upper body days.",
+              ytQuery: "shoulder+warm+up+before+lifting"
+            }
+          },
+          {
+            code: "1A",
+            name: "Converging Chest Press Machine or Flat DB Press",
+            sets: 4, reps: "10–12", tempo: "3-0-1-0", rpeW1: "RPE 8", rpeW2: "RPE 8.5", rest: 60,
+            note: "Paired with 1B (<span onclick=\"event.stopPropagation(); openTermModal('aps')\" class=\"term-link\">Antagonist Superset ⓘ</span>). Lower over 3 seconds, press smoothly while exhaling.",
+            demo: {
+              visual: "push_upper",
+              muscles: "Mid/Lower Chest (Pectoralis Major), Front Delts, Triceps",
+              steps: [
+                "Adjust seat so handles align with your mid-chest (nipple line).",
+                "Pin your shoulder blades back and down against the pad.",
+                "Press handles forward and slightly inward while exhaling.",
+                "Take 3 full seconds to lower the weight back until your elbows are slightly behind your torso."
+              ],
+              breathing: "Inhale during the 3-second lowering phase; exhale forcefully as you press forward.",
+              avoid: "Keep your head resting against the pad—don't crane your neck forward.",
+              ytQuery: "converging+chest+press+machine+form"
+            }
+          },
+          {
+            code: "1B",
+            name: "Single-Arm Machine or Dumbbell High Row",
+            sets: 4, reps: "10–12 / side", tempo: "2-1-1-1", rpeW1: "RPE 8", rpeW2: "RPE 8.5", rest: 60,
+            note: "Working one arm at a time lets you focus on deep lat contraction with minimal core pressure.",
+            demo: {
+              visual: "row_horizontal",
+              muscles: "Latissimus Dorsi, Tera Major, Mid-Back",
+              steps: [
+                "Brace your non-working hand on the pad or bench for rock-solid support.",
+                "Pull the handle down and back in an arc toward your hip pocket.",
+                "Pause for 1 second at full contraction, then take 2 seconds to return to a full stretch."
+              ],
+              breathing: "Exhale as you drive your elbow back; inhale as your arm stretches forward.",
+              avoid: "Don't twist your torso excessively—let your back muscles move the weight.",
+              ytQuery: "single+arm+machine+high+row+form"
+            }
+          },
+          {
+            code: "2A",
+            name: "Dual-Cable Lateral Raises (Cables at Wrist Height)",
+            sets: 3, reps: "12–15", tempo: "2-0-1-1", rpeW1: "RPE 8.5", rpeW2: "RPE 9", rest: 60,
+            note: "Setting the pulleys at wrist height (instead of the floor) puts peak tension on your side shoulders right from the start.",
+            demo: {
+              visual: "isolation_cable",
+              muscles: "Lateral Deltoid (Shoulder Width)",
+              steps: [
+                "Set two opposing cable pulleys to wrist or knee height and cross the cables in front of you.",
+                "Stand tall in the center and sweep your arms out to the sides (slightly forward in the 'scapular plane', about 20° in front of your torso).",
+                "Pause 1 second when your hands reach shoulder height, then lower over 2 seconds."
+              ],
+              breathing: "Exhale as you raise your arms out; inhale as you lower them.",
+              avoid: "Don't shrug your traps up toward your ears—think about reaching your knuckles out toward the walls.",
+              ytQuery: "cable+lateral+raise+wrist+height+form"
+            }
+          },
+          {
+            code: "2B",
+            name: "Assisted Pull-Up or Wide-Grip Lat Pulldown",
+            sets: 3, reps: "10–12", tempo: "3-1-1-0", rpeW1: "RPE 8", rpeW2: "RPE 8.5", rest: 60,
+            note: "Pause 1 second at the top stretch to lengthen the lats and ribcage.",
+            demo: {
+              visual: "pull_vertical",
+              muscles: "Upper Lats, Teres Major, Biceps",
+              steps: [
+                "Take an overhand grip slightly wider than shoulder-width.",
+                "Pull your upper chest up toward the bar (or pull the bar down to your collarbone).",
+                "Lower slowly over 3 seconds and pause 1 second at the top overhead stretch."
+              ],
+              breathing: "Exhale as you pull up/down; inhale as you lower into the overhead stretch.",
+              avoid: "Don't pull behind your neck—always pull to the front of your collarbone.",
+              ytQuery: "assisted+pull+up+machine+proper+form"
+            }
+          },
+          {
+            code: "3A",
+            name: "Low-to-High Cable Chest Fly",
+            sets: 3, reps: "12–15", tempo: "2-1-1-1", rpeW1: "RPE 8.5", rpeW2: "RPE 8.5", rest: 45,
+            note: "Bring handles up and together at collarbone height and squeeze for 1 second.",
+            demo: {
+              visual: "isolation_cable",
+              muscles: "Upper & Inner Pectorals",
+              steps: [
+                "Set pulleysnear the bottom of the cable column and step forward into a staggered stance.",
+                "With a slight bend in your elbows, scoop the handles upward and inward until they meet in front of your upper chest.",
+                "Squeeze your chest for 1 second, then lower back over 2 seconds."
+              ],
+              breathing: "Exhale as your hands come together; inhale as your arms open back up.",
+              avoid: "Keep elbows slightly fixed—don't turn this into a bicep curl.",
+              ytQuery: "low+to+high+cable+chest+fly+form"
+            }
+          },
+          {
+            code: "3B",
+            name: "Bayesian Cable Curl + Overhead Cable Triceps Ext.",
+            sets: 3, reps: "12–15 each", tempo: "2-0-1-0", rpeW1: "RPE 8.5", rpeW2: "RPE 8.5", rest: 45,
+            note: "Stretches both the biceps and triceps at long muscle lengths for maximum arm growth with light joint load.",
+            demo: {
+              visual: "isolation_cable",
+              muscles: "Biceps & Triceps Long Head",
+              steps: [
+                "Cable Curl: Face away from a low pulley so your arm extends slightly behind your torso. Curl forward while keeping your elbow pinned at your side.",
+                "Overhead Triceps Ext: Face away from a chest-high rope pulley, hinge slightly forward, and extend your arms overhead.",
+                "Perform 12–15 reps of each back-to-back, then rest 45 seconds."
+              ],
+              breathing: "Exhale on the contraction; inhale on the 2-second stretch.",
+              avoid: "Avoid flaring your elbows wide during the overhead triceps extension.",
+              ytQuery: "bayesian+cable+curl+and+overhead+tricep+extension+form"
+            }
+          },
+          {
+            code: "Sauna",
+            name: "Post-Lift Dry Sauna + Mild Cool Shower (15 Mins)",
+            sets: 1, reps: "12m Sauna + 3m Cool Shower", tempo: "Slow Breathing", rpeW1: "Recovery", rpeW2: "Recovery", rest: 0,
+            note: "12 mins dry heat (175–190°F) + 3 mins lukewarm/cool shower (65–70°F) + potassium electrolyte water.",
+            demo: {
+              visual: "sauna_recovery",
+              muscles: "Vascular Endothelium & Autonomic Nervous System",
+              steps: [
+                "12 minutes in the dry sauna practicing slow nasal breathing.",
+                "3 minutes in a mild cool shower (65–70°F) to bring core temperature down smoothly.",
+                "Rehydrate with 16 oz water + low-sodium potassium/magnesium electrolytes."
+              ],
+              breathing: "4-second nose inhale, 6-second mouth exhale.",
+              avoid: "Skip icy cold plunges (<55°F) to prevent cold-shock blood pressure spikes.",
+              ytQuery: "dry+sauna+protocol+for+recovery"
+            }
+          }
+        ]
+      },
+      fri: {
+        title: "Lower Functional Strength + Track 400m Intervals",
+        facility: "Club / Home Weights + Outdoor Running Track",
+        duration: "70 Mins (8m Warm-Up | 25m Lift | 25m Track | 7m Cool)",
+        isRest: false,
+        blocks: [
+          {
+            code: "Warm-Up",
+            name: "Dynamic Hip & Track Prep (8 Mins)",
+            sets: 1, reps: "8 mins", tempo: "Dynamic", rpeW1: "RPE 5", rpeW2: "RPE 5", rest: 0,
+            note: "400m easy jog + dynamic lunges, leg swings, and glute bridges.",
+            demo: {
+              visual: "track_cardio",
+              muscles: "Glutes, Hip Flexors, Hamstrings & Vascular Bed",
+              steps: [
+                "400m easy jog or brisk walk.",
+                "10 walking lunges with torso twist + 10 glute bridges.",
+                "10 leg swings per side."
+              ],
+              breathing: "Smooth nasal/mouth breathing.",
+              avoid: "Ensure hips and hamstrings are warm before lunges and 400m track laps.",
+              ytQuery: "dynamic+hip+warm+up+for+running+and+lifting"
+            }
+          },
+          {
+            code: "1A",
+            name: "Barbell/Machine Hip Thrust (or Heavy Goblet Squat)",
+            sets: 3, reps: "10–12", tempo: "2-1-1-2", rpeW1: "RPE 8", rpeW2: "RPE 8.5", rest: 60,
+            note: "Hold the top glute squeeze for 2 seconds while blowing air out.",
+            demo: {
+              visual: "hinge_lower",
+              muscles: "Gluteus Maximus, Hamstrings, Core",
+              steps: [
+                "Rest your upper back (just below shoulder blades) against a bench or use the club's dedicated Hip Thrust machine.",
+                "Set feet shoulder-width apart so shins are vertical at the top of the rep.",
+                "Drive through your heels to lift hips until your body forms a flat tabletop from shoulders to knees.",
+                "Squeeze glutes for 2 seconds at the top, keep chin tucked, and lower over 2 seconds."
+              ],
+              breathing: "Exhale strongly as you drive hips up and hold; inhale as you lower down.",
+              avoid: "Don't hyperextend your lower back at the top—keep your ribs down and chin tucked.",
+              ytQuery: "barbell+hip+thrust+proper+form"
+            }
+          },
+          {
+            code: "1B",
+            name: "Walking Dumbbell Lunges",
+            sets: 3, reps: "10 steps / leg", tempo: "2-0-1-0", rpeW1: "RPE 8", rpeW2: "RPE 8.5", rest: 60,
+            note: "Keep a slight 15° forward lean in your torso to recruit glutes and quads evenly.",
+            demo: {
+              visual: "squat_lower",
+              muscles: "Quadriceps, Glutes, Calves, Cardiovascular Conditioning",
+              steps: [
+                "Hold dumbbells at your sides with shoulders back and chest proud.",
+                "Step forward smoothly and lower your back knee until it hovers 1 inch above the floor.",
+                "Drive through your front heel to step straight into the next lunge."
+              ],
+              breathing: "Inhale as you step and lower down; exhale as you drive up into the next step.",
+              avoid: "Don't walk on a tightrope—step with feet hip-width apart for better balance.",
+              ytQuery: "walking+dumbbell+lunges+proper+form"
+            }
+          },
+          {
+            code: "2A",
+            name: "Single-Leg Assisted Dumbbell RDL",
+            sets: 3, reps: "10 / leg", tempo: "3-0-1-0", rpeW1: "RPE 8", rpeW2: "RPE 8", rest: 60,
+            note: "Hold a rack or wall lightly with your free hand so you can load your hamstrings heavily without losing balance.",
+            demo: {
+              visual: "hinge_lower",
+              muscles: "Hamstrings, Glute Medius (Hip Stability)",
+              steps: [
+                "Hold a dumbbell in your right hand while standing on your left leg, and lightly touch a rack with your left hand for balance.",
+                "Hinge your hips back while extending your right leg straight behind you like a seesaw.",
+                "Lower for 3 seconds until you feel a deep hamstring stretch, then drive your hips forward to stand."
+              ],
+              breathing: "Inhale on the 3-second hinge down; exhale as you stand tall.",
+              avoid: "Keep your hips square to the floor—don't let your back hip twist open.",
+              ytQuery: "hand+supported+single+leg+rdl+form"
+            }
+          },
+          {
+            code: "2B",
+            name: "Heavy Dumbbell Suitcase Carry",
+            sets: 3, reps: "40 yds / hand", tempo: "Controlled Walk", rpeW1: "RPE 8", rpeW2: "RPE 8", rest: 60,
+            note: "Hold one heavy dumbbell in one hand like a suitcase and walk tall without leaning. Breathe continuously!",
+            demo: {
+              visual: "isolation_cable",
+              muscles: "Obliques, Quadratus Lumborum (Lower Back Armor), Grip & Traps",
+              steps: [
+                "Pick up a single moderately heavy dumbbell in your right hand.",
+                "Stand completely tall as if a string is pulling the crown of your head to the ceiling.",
+                "Walk 40 yards slowly while keeping your shoulders level, then switch hands and walk 40 yards back."
+              ],
+              breathing: "Take steady, rhythmic breaths in and out—never hold your breath while carrying.",
+              avoid: "Don't let the dumbbell rest against your thigh or lean sideways.",
+              ytQuery: "dumbbell+suitcase+carry+form"
+            }
+          },
+          {
+            code: "Track",
+            name: "Outdoor Track: 400m Controlled Cruise Intervals",
+            sets: 1, reps: "W1: 5x400m (90s rest) | W2: 6x400m (75s rest)", tempo: "85% HRmax (RPE 8)", rpeW1: "5 x 400m (90s walk rest)", rpeW2: "6 x 400m (75s walk rest)", rest: 90,
+            note: "Run 1 full lap (400m) at a fast, controlled 5K pace (<span onclick=\"event.stopPropagation(); openTermModal('rpe')\" class=\"term-link\">RPE 8 ⓘ</span>—NOT an all-out sprint). Walk 90s (75s in Week 2) between laps.",
+            demo: {
+              visual: "track_cardio",
+              muscles: "VO2 Max, Arterial Compliance & High-Rate Fat Oxidation",
+              steps: [
+                "Run 1 lap (400m) at an athletic, strong 5K race pace (~85% max heart rate, roughly 150–156 BPM).",
+                "Every lap should be run at the exact same split time—if your 1st lap is 95 seconds, your 5th lap should also be 95 seconds.",
+                "Immediately after crossing the line, walk slowly for 90 seconds (Week 1) or 75 seconds (Week 2) while slowing your breathing down."
+              ],
+              breathing: "Strong rhythmic 2-steps-in / 2-steps-out breathing during the lap; deep nose-in / mouth-out recovery breathing during the walk.",
+              avoid: "Avoid all-out 100% Wingate sprinting until you collapse—controlled 85% cruise intervals upgrade heart fitness without dangerous blood-pressure spikes.",
+              ytQuery: "400m+track+cruise+intervals+pacing"
+            }
+          },
+          {
+            code: "Cool-Down",
+            name: "Extended 800m Parasympathetic Track Walk",
+            sets: 1, reps: "800m (2 Laps)", tempo: "Slow Nasal", rpeW1: "HR < 105", rpeW2: "HR < 105", rest: 0,
+            note: "Walk 2 full laps slowly until heart rate drops below 105 BPM.",
+            demo: {
+              visual: "sauna_recovery",
+              muscles: "Vagal Tone & Post-Exercise Blood Pressure Drop",
+              steps: [
+                "Walk 2 full laps (800m) at a relaxed stroll.",
+                "Focus on extending your exhales (4s nose inhale, 6s mouth exhale).",
+                "Drink 16 oz water with potassium electrolytes once finished."
+              ],
+              breathing: "4-second nasal inhale, 6-second pursed-lip exhale.",
+              avoid: "Never stop abruptly after track intervals—2 laps of walking safely brings blood pressure below baseline.",
+              ytQuery: "cooldown+walk+after+track+intervals"
+            }
+          }
+        ]
+      },
+      sat_rest: {
+        title: "Complete Rest, Vascular Recovery & Family Sports",
+        facility: "Outdoor Sidelines / Home",
+        duration: "Zero Formal Training (8,000–10,000 Casual Steps)",
+        isRest: true,
+        blocks: [
+          {
+            code: "NEAT",
+            name: "Casual Walking & Family Sideline Mobility",
+            sets: 1, reps: "8,000–10,000 Steps", tempo: "Relaxed", rpeW1: "Rest", rpeW2: "Rest", rest: 0,
+            note: "Full recovery for your muscles and nervous system during your kids' weekend games. Pack your sideline cooler (hibiscus tea, raw walnuts/almonds, apple, whey shake).",
+            demo: {
+              visual: "sauna_recovery",
+              muscles: "Central Nervous System & Muscular Hypertrophy Repair",
+              steps: [
+                "Enjoy your children's Saturday sports games with zero gym stress.",
+                "Pace the sidelines or take a family walk to naturally hit 8,000–10,000 easy steps.",
+                "Sip unsweetened hibiscus tea from a thermos (acts as a natural mild blood-pressure reducer) and snack on raw walnuts/almonds instead of high-salt concession food."
+              ],
+              breathing: "Relaxed everyday nasal breathing.",
+              avoid: "Don't sneak in heavy weekend workouts—muscles and arteries remodel during these 48 hours of rest.",
+              ytQuery: "active+recovery+walking+benefits"
+            }
+          }
+        ]
+      },
+      sun_rest: {
+        title: "Complete Rest, Family Sports + 60-Min Executive Meal Prep",
+        facility: "Outdoor Sidelines / Home Kitchen",
+        duration: "Zero Formal Training + 60m Batch Prep",
+        isRest: true,
+        blocks: [
+          {
+            code: "NEAT",
+            name: "Casual Walking & Family Sideline Mobility",
+            sets: 1, reps: "8,000–10,000 Steps", tempo: "Relaxed", rpeW1: "Rest", rpeW2: "Rest", rest: 0,
+            note: "Full central nervous system and vascular recovery during Sunday family activities and sports games.",
+            demo: {
+              visual: "sauna_recovery",
+              muscles: "Central Nervous System & Vascular Endothelium",
+              steps: [
+                "Accumulate 8,000–10,000 easy steps naturally outdoors with family.",
+                "Stay hydrated with water and unsweetened hibiscus or green tea.",
+                "Perform 5 minutes of slow vagal breathing before bed to prime Monday's training."
+              ],
+              breathing: "Relaxed nasal breathing throughout the day.",
+              avoid: "Avoid high-sodium restaurant or concession meals that cause Monday morning water retention and blood pressure spikes.",
+              ytQuery: "active+recovery+walking+benefits"
+            }
+          },
+          {
+            code: "Prep",
+            name: "Sunday 60-Min Executive Meal Prep",
+            sets: 1, reps: "5 Lunch Bowls + 5 Oat Jars", tempo: "Batch Prep", rpeW1: "Prep", rpeW2: "Prep", rest: 0,
+            note: "Assemble 5 overnight LDL-Sponge oat jars and 5 Executive DASH lunch bowls so Monday–Friday nutrition is automatic.",
+            demo: {
+              visual: "sauna_recovery",
+              muscles: "Metabolic Consistency & LDL/BP Control",
+              steps: [
+                "Line up 5 Mason jars: add 60g rolled oats, 15g chia seeds, and 1 tsp psyllium husk to each (add soy milk and protein the night before).",
+                "Bake or grill 30 oz skinless chicken breast (or portion wild canned sockeye salmon) + boil 1 batch of pearled barley or black beans.",
+                "Divide spinach/arugula, barley/beans, and protein into 5 glass lunch containers for grab-and-go weekday lunches."
+              ],
+              breathing: "Relaxed Sunday prep.",
+              avoid: "Avoid adding table salt during cooking—use garlic, lemon, oregano, smoked paprika, and EVOO.",
+              ytQuery: "healthy+high+protein+meal+prep+bowls"
+            }
+          }
+        ]
+      }
+    };
+
+    const scheduleMap = [
+      { day: 1, week: 1, dow: "Fri", key: "fri" },
+      { day: 2, week: 1, dow: "Sat", key: "sat_rest" },
+      { day: 3, week: 1, dow: "Sun", key: "sun_rest" },
+      { day: 4, week: 1, dow: "Mon", key: "mon" },
+      { day: 5, week: 1, dow: "Tue", key: "tue" },
+      { day: 6, week: 1, dow: "Wed", key: "wed" },
+      { day: 7, week: 1, dow: "Thu", key: "thu" },
+      { day: 8, week: 2, dow: "Fri", key: "fri" },
+      { day: 9, week: 2, dow: "Sat", key: "sat_rest" },
+      { day: 10, week: 2, dow: "Sun", key: "sun_rest" },
+      { day: 11, week: 2, dow: "Mon", key: "mon" },
+      { day: 12, week: 2, dow: "Tue", key: "tue" },
+      { day: 13, week: 2, dow: "Wed", key: "wed" },
+      { day: 14, week: 2, dow: "Thu", key: "thu" }
+    ];
+
+    const clinicalCheckpoints = [
+      {
+        id: "sterols",
+        termKey: "sterols",
+        name: "2.0g Plant Sterols (Cholesterol Blocker)",
+        desc: "Take 1g plant sterol softgel with Lunch + 1g with Dinner to block cholesterol absorption in your gut."
+      },
+      {
+        id: "omega3",
+        termKey: "omega3",
+        name: "3.0g Marine Omega-3s (Triglyceride Cleaner)",
+        desc: "High-potency EPA/DHA fish oil daily + wild salmon/trout 3–4x/week to clear blood triglycerides."
+      },
+      {
+        id: "nitrates",
+        termKey: "nitrates",
+        name: "Pre-Workout Beetroot Nitrates & L-Citrulline",
+        desc: "1 scoop beetroot powder + 5g L-Citrulline 45 mins before training to widen arteries and keep exercising BP low."
+      },
+      {
+        id: "na_k",
+        termKey: "na_k",
+        name: "Low Salt (<1,800mg) + High Potassium (>4,700mg)",
+        desc: "Skip table salt; load up on baked potato skin, avocado, spinach, banana, and herbs to flush excess water."
+      },
+      {
+        id: "magnesium",
+        termKey: "magnesium",
+        name: "400mg Magnesium Glycinate Before Bed",
+        desc: "Relaxes blood vessel walls overnight and deepens sleep recovery."
+      }
+    ];
+
+    const mealTemplates = [
+      {
+        id: "m1",
+        title: "Meal 1: The 'LDL-Sponge' Power Oats",
+        macros: "540 kcal | 48g Protein | 58g Carbs | 12g Fat | 14g Gel Fiber",
+        items: "60g rolled oats + 15g chia seeds + 1 tsp (7g) <span onclick=\"openTermModal('soluble_fiber')\" class=\"term-link\">Psyllium Husk Fiber ⓘ</span> soaked in 250mL unsweetened soy milk. Stir in 1.5 scoops whey/plant isolate, 100g wild blueberries, and 1 tsp Ceylon cinnamon."
+      },
+      {
+        id: "m2",
+        title: "Meal 2: Executive DASH Modular Lunch Bowl",
+        macros: "580 kcal | 55g Protein | 48g Carbs | 18g Fat | 12g Fiber",
+        items: "3 cups spinach & arugula + 120g cooked pearled barley or black beans + 6 oz cooked chicken breast or wild sockeye salmon + ½ avocado + 1 tbsp extra-virgin olive oil, lemon & oregano + <span onclick=\"openTermModal('sterols')\" class=\"term-link\">1g Plant Sterol ⓘ</span>."
+      },
+      {
+        id: "m3",
+        title: "Meal 3: Pre-Workout Artery Primer (45m Before Gym/Track)",
+        macros: "Mon–Fri: 260 kcal (28g P / 35g C) | Sat–Sun: 120 kcal (27g P / 2g C)",
+        items: "1 scoop whey isolate in water + <span onclick=\"openTermModal('nitrates')\" class=\"term-link\">5g L-Citrulline + 1 scoop Beetroot Powder ⓘ</span>. Eat 1 medium banana (420mg potassium) on Mon–Fri training days; skip the banana on Sat/Sun rest days."
+      },
+      {
+        id: "m4",
+        title: "Meal 4: Heart-Protective Recovery Dinner",
+        macros: "Mon–Fri: 620 kcal | Sat–Sun: 510 kcal (52g Protein | 21g Fat | 10g Fiber)",
+        items: "6 oz wild salmon/trout (Mon/Wed/Fri) or extra-lean bison/chicken/tofu (Tue/Thu/Sat/Sun) + 200g baked sweet or white potato with skin (950mg potassium! Reduce to 100g on Sat/Sun) + 2 cups roasted broccoli or asparagus in 1 tbsp olive oil + <span onclick=\"openTermModal('sterols')\" class=\"term-link\">1g Plant Sterol ⓘ</span>."
+      },
+      {
+        id: "m5",
+        title: "Meal 5: Evening Wind-Down Bowl",
+        macros: "250 kcal | 17g Protein | 15g Carbs | 16g Fat | 5g Fiber",
+        items: "150g 0% Greek Yogurt or Skyr topped with 25g raw walnuts or almonds + 50g raspberries + <span onclick=\"openTermModal('magnesium')\" class=\"term-link\">400mg Magnesium Glycinate ⓘ</span>."
+      }
+    ];
+
+    // =========================================================================
+    // 4. STATE MANAGEMENT & PERSISTENCE
+    // =========================================================================
+    let state = JSON.parse(localStorage.getItem('cardioRecompState_v2_fri')) || {
+      currentCycle: 1,
+      selectedDay: 1,
+      completedExercises: {},
+      weightsLog: {},
+      completedMeals: {},
+      completedCheckpoints: {},
+      biometrics: {}
+    };
+
+    // Track which exercise demo drawers are currently expanded
+    let expandedDemos = {};
+
+    function saveState() {
+      localStorage.setItem('cardioRecompState_v2_fri', JSON.stringify(state));
+    }
+
+    // =========================================================================
+    // 5. UI RENDERING FUNCTIONS
+    // =========================================================================
+    function initApp() {
+      renderHeader();
+      renderDayScroller();
+      renderWorkoutTab();
+      renderNutritionTab();
+      renderMetricsTab();
+    }
+
+    function renderHeader() {
+      document.getElementById('cycleDisplay').innerText = `#${state.currentCycle}`;
+    }
+
+    function changeCycle(delta) {
+      if (state.currentCycle + delta < 1) return;
+      state.currentCycle += delta;
+      saveState();
+      initApp();
+    }
+
+    function selectDay(dayNum) {
+      state.selectedDay = dayNum;
+      saveState();
+      renderDayScroller();
+      renderWorkoutTab();
+      renderNutritionTab();
+      renderMetricsTab();
+    }
+
+    function renderDayScroller() {
+      const container = document.getElementById('dayScroller');
+      container.innerHTML = '';
+      scheduleMap.forEach(item => {
+        const isSelected = item.day === state.selectedDay;
+        const isRestDay = workoutTemplates[item.key].isRest;
+        const btn = document.createElement('button');
+        btn.onclick = () => selectDay(item.day);
+        btn.className = `flex-shrink-0 px-3 py-1.5 rounded-lg border text-left transition ${
+          isSelected
+            ? 'bg-emerald-600 border-emerald-400 text-white shadow-md'
+            : isRestDay
+            ? 'bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-800'
+            : 'bg-slate-900 border-slate-800 text-slate-200 hover:bg-slate-800'
+        }`;
+        btn.innerHTML = `
+          <div class="text-[10px] font-bold uppercase opacity-80">W${item.week} • ${item.dow}</div>
+          <div class="text-xs font-extrabold">Day ${item.day}</div>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    function toggleExerciseDemo(demoKey) {
+      expandedDemos[demoKey] = !expandedDemos[demoKey];
+      renderWorkoutTab();
+    }
+
+    function renderWorkoutTab() {
+      const dayObj = scheduleMap.find(d => d.day === state.selectedDay);
+      const tpl = workoutTemplates[dayObj.key];
+      const isWeek2 = dayObj.week === 2;
+
+      const headerCard = document.getElementById('workoutHeaderCard');
+      headerCard.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+            tpl.isRest ? 'bg-sky-950 text-sky-300 border border-sky-800' : isWeek2 ? 'bg-purple-950 text-purple-300 border border-purple-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+          }">
+            Day ${dayObj.day} (${dayObj.dow}) • ${tpl.isRest ? 'Recovery & Family Day' : isWeek2 ? 'Week 2: Add 1–2 Reps or 2.5–5 lbs' : 'Week 1: Baseline Weight & Form'}
+          </span>
+          <span class="text-xs text-slate-400 font-mono">⏱ ${tpl.duration}</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white">${tpl.title}</h2>
+        <p class="text-xs text-slate-400 mt-0.5">📍 ${tpl.facility}</p>
+      `;
+
+      const list = document.getElementById('workoutExercisesContainer');
+      list.innerHTML = '';
+
+      tpl.blocks.forEach(block => {
+        const checkKey = `c${state.currentCycle}_d${dayObj.day}_${block.code}`;
+        const demoKey = `d${dayObj.day}_${block.code}`;
+        const isDone = !!state.completedExercises[checkKey];
+        const isExpanded = !!expandedDemos[demoKey];
+
+        const weightKeyW1 = `${dayObj.key}_${block.code}_w1`;
+        const weightKeyW2 = `${dayObj.key}_${block.code}_w2`;
+        const currentWeightKey = isWeek2 ? weightKeyW2 : weightKeyW1;
+        const savedWeight = state.weightsLog[currentWeightKey] || '';
+        const prevWeekWeight = isWeek2 ? (state.weightsLog[weightKeyW1] || 'Not logged yet') : '';
+
+        const card = document.createElement('div');
+        card.className = `rounded-xl border transition overflow-hidden ${
+          isDone ? 'bg-emerald-950/20 border-emerald-800/60' : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+        }`;
+
+        card.innerHTML = `
+          <!-- Clickable Card Header -->
+          <div onclick="toggleExerciseDemo('${demoKey}')" class="p-3.5 cursor-pointer select-none">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-start gap-3">
+                <input type="checkbox" ${isDone ? 'checked' : ''}
+                  onclick="event.stopPropagation()"
+                  onchange="toggleExercise('${checkKey}')"
+                  class="mt-1 w-5 h-5 rounded accent-emerald-500 cursor-pointer flex-shrink-0">
+                <div>
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-slate-800 text-emerald-400 font-mono">${block.code}</span>
+                    <h3 class="text-sm font-bold ${isDone ? 'line-through text-slate-400' : 'text-white'}">${block.name}</h3>
+                  </div>
+
+                  <!-- Metrics Pills -->
+                  <div class="flex flex-wrap gap-1.5 mt-2 text-[11px] text-slate-300 font-mono">
+                    <span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800">Sets: <strong>${block.sets}</strong></span>
+                    <span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800">Reps: <strong>${block.reps}</strong></span>
+                    <span onclick="event.stopPropagation(); openTermModal('tempo')" class="bg-slate-950 hover:bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-emerald-300 cursor-pointer">
+                      Tempo: <strong>${block.tempo}</strong> ⓘ
+                    </span>
+                    <span onclick="event.stopPropagation(); openTermModal('rpe')" class="bg-slate-950 hover:bg-slate-800 px-2 py-0.5 rounded border border-emerald-900/80 text-emerald-300 cursor-pointer">
+                      ${isWeek2 ? block.rpeW2 : block.rpeW1} ⓘ
+                    </span>
+                  </div>
+
+                  <p class="text-xs text-slate-300 mt-2 leading-relaxed">${block.note}</p>
+
+                  <!-- Expand Demo Badge -->
+                  <div class="mt-2.5 inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md ${
+                    isExpanded ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-600/40' : 'bg-slate-800/90 text-sky-300 border border-slate-700'
+                  }">
+                    <span>${isExpanded ? '▾ Hide Exercise Demo & Form Guide' : '▸ Tap for Animated Form Demo & Breathing Guide'}</span>
+                  </div>
+                </div>
+              </div>
+
+              ${block.rest > 0 ? `
+                <button onclick="event.stopPropagation(); setTimer(${block.rest})" class="flex-shrink-0 text-[11px] bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-200 px-2.5 py-1.5 rounded-lg font-mono transition border border-slate-700">
+                  ⏱ ${block.rest}s
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Expandable Exercise Demonstration Drawer -->
+          ${isExpanded && block.demo ? `
+            <div class="bg-slate-950/90 border-t border-slate-800 px-4 py-4 space-y-3.5">
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                <!-- Animated SVG Diagram -->
+                <div class="sm:col-span-5">
+                  ${getExerciseSVG(block.demo.visual, block.demo.muscles)}
+                  <div class="text-[11px] text-center text-emerald-400 font-medium mt-1.5">
+                    🎯 Target: ${block.demo.muscles}
+                  </div>
+                </div>
+
+                <!-- Step-by-Step Cues -->
+                <div class="sm:col-span-7 space-y-2.5 text-xs">
+                  <div>
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Step-by-Step Form Checklist</div>
+                    <ul class="space-y-1.5 text-slate-200 list-disc pl-4 leading-relaxed">
+                      ${block.demo.steps.map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Blood Pressure Breathing & Safety Row -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs">
+                <div class="bg-emerald-950/30 border border-emerald-800/50 rounded-lg p-2.5">
+                  <div class="font-bold text-emerald-300 text-[11px] uppercase tracking-wide mb-0.5">🫁 Blood-Pressure Breathing Sync</div>
+                  <p class="text-slate-300 leading-relaxed">${block.demo.breathing}</p>
+                </div>
+                <div class="bg-rose-950/25 border border-rose-800/50 rounded-lg p-2.5">
+                  <div class="font-bold text-rose-300 text-[11px] uppercase tracking-wide mb-0.5">⚠️ Common Mistake to Avoid</div>
+                  <p class="text-slate-300 leading-relaxed">${block.demo.avoid}</p>
+                </div>
+              </div>
+
+              <!-- Club Equipment Swap & Video Reference Row -->
+              <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div class="text-slate-300">
+                  <span class="font-bold text-amber-300 text-[11px] uppercase tracking-wide mr-1">🔄 Club Equipment Swap:</span>
+                  <span>${getSwapSuggestion(block.code, block.name)}</span>
+                </div>
+                <a href="https://www.youtube.com/results?search_query=${block.demo.ytQuery}" target="_blank" rel="noopener noreferrer"
+                  onclick="event.stopPropagation()"
+                  class="inline-flex items-center gap-1.5 bg-sky-600/20 hover:bg-sky-600/30 text-sky-300 border border-sky-500/40 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex-shrink-0">
+                  <span>▶</span> Watch Video Form Demo
+                </a>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Weight & Rep Logger Footer -->
+          ${!tpl.isRest && !['Warm-Up', 'Cool-Down', 'Sauna', 'Flush'].includes(block.code) ? `
+            <div onclick="event.stopPropagation()" class="bg-slate-950/60 px-3.5 py-2.5 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+              <div class="text-[11px] text-slate-400">
+                ${isWeek2 ? `Week 1 Baseline: <span class="text-emerald-300 font-mono font-semibold">${prevWeekWeight}</span>` : 'Log Working Weight & Reps:'}
+              </div>
+              <input type="text" value="${savedWeight}" placeholder="e.g., 65 lbs x 10,10,9"
+                onchange="saveExerciseWeight('${currentWeightKey}', this.value)"
+                class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-mono w-48 focus:border-emerald-500 focus:outline-none">
+            </div>
+          ` : ''}
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function getSwapSuggestion(code, name) {
+      if (name.includes("Incline Dumbbell")) return "Incline Machine Press or Smith Machine Incline Press (30°)";
+      if (name.includes("Chest-Supported")) return "Seated Cable Row (with upright torso) or Chest-Supported DB Row on 45° Bench";
+      if (name.includes("Neutral-Grip Lat")) return "MAG-Grip Pulldown or Dual-Handle High Cable Pulldown";
+      if (name.includes("Shoulder Press")) return "High-Incline (75°) Dumbbell Press or Landmine Shoulder Press";
+      if (name.includes("Face Pulls")) return "Reverse Pec-Deck Rear Delt Machine or Band Face Pulls";
+      if (name.includes("Seated Leg Curl")) return "Single-Leg Standing Leg Curl or Stability Ball Hamstring Curl";
+      if (name.includes("Pendulum Squat")) return "Belt Squat Machine, Goblet Squat, or High-Foot Horizontal Leg Press";
+      if (name.includes("Romanian Deadlift")) return "Cable Pull-Through, Trap-Bar RDL, or 45° Back Extension (Glute/Ham bias)";
+      if (name.includes("Bulgarian Split")) return "Static Dumbbell Split Squat, Step-Ups, or Single-Leg Horizontal Press";
+      if (name.includes("Converging Chest")) return "Flat Dumbbell Bench Press or Cable Chest Press (Seated)";
+      if (name.includes("High Row")) return "Single-Arm Cable Lat Row (Half-Kneeling) or Hammer Strength Iso-Lateral Row";
+      if (name.includes("Lateral Raises")) return "Dumbbell Lateral Raises (Seated) or Machine Lateral Raise";
+      if (name.includes("Hip Thrust")) return "Selectorized Glute Drive Machine, Heavy DB Bridge, or Trap-Bar Deadlift";
+      if (name.includes("Walking Dumbbell")) return "Reverse Dumbbell Lunges in place or Split-Stance Cable Lunges";
+      if (name.includes("Suitcase Carry")) return "Kettlebell Rack Carry or Cable Side-Plank Hold";
+      if (code === "Track" || code === "Main" || code === "Strides") return "Club Woodway Curve/Slatted Treadmill (1.0% incline) or Assault AirBike";
+      return "Any equivalent selectorized machine or cable station at your club";
+    }
+
+    function toggleExercise(key) {
+      state.completedExercises[key] = !state.completedExercises[key];
+      saveState();
+      renderWorkoutTab();
+    }
+
+    function saveExerciseWeight(key, val) {
+      state.weightsLog[key] = val;
+      saveState();
+    }
+
+    // =========================================================================
+    // 6. NUTRITION TAB RENDERING
+    // =========================================================================
+    function renderNutritionTab() {
+      const dayObj = scheduleMap.find(d => d.day === state.selectedDay);
+      const isRest = workoutTemplates[dayObj.key].isRest;
+
+      document.getElementById('macroDayTypeLabel').innerText = isRest
+        ? `Day ${dayObj.day} (${dayObj.dow}) • Weekend Rest Day Targets`
+        : `Day ${dayObj.day} (${dayObj.dow}) • Weekday Training Targets`;
+      document.getElementById('dayCalorieTarget').innerText = isRest ? '1,980 kcal' : '2,250 kcal';
+      document.getElementById('macroP').innerText = '200g';
+      document.getElementById('macroC').innerText = isRest ? '145g' : '210g';
+      document.getElementById('macroF').innerText = isRest ? '67g' : '68g';
+
+      // Render Clinical Checkpoints
+      const checkContainer = document.getElementById('clinicalCheckpointsList');
+      checkContainer.innerHTML = '';
+      clinicalCheckpoints.forEach(cp => {
+        const key = `c${state.currentCycle}_d${dayObj.day}_${cp.id}`;
+        const done = !!state.completedCheckpoints[key];
+        const div = document.createElement('div');
+        div.className = `flex items-start justify-between gap-2.5 p-3 rounded-xl border transition ${
+          done ? 'bg-emerald-950/20 border-emerald-800/50' : 'bg-slate-950 border-slate-800'
+        }`;
+        div.innerHTML = `
+          <div class="flex items-start gap-2.5">
+            <input type="checkbox" ${done ? 'checked' : ''} onchange="toggleCheckpoint('${key}')" class="mt-0.5 w-4 h-4 accent-emerald-500 cursor-pointer flex-shrink-0">
+            <div>
+              <div class="text-xs font-bold ${done ? 'line-through text-slate-400' : 'text-emerald-300'}">${cp.name}</div>
+              <div class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">${cp.desc}</div>
+            </div>
+          </div>
+          <button onclick="openTermModal('${cp.termKey}')" class="flex-shrink-0 text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 px-2 py-1 rounded-md font-semibold">
+            Why ⓘ
+          </button>
+        `;
+        checkContainer.appendChild(div);
+      });
+
+      // Render Meals
+      const mealsContainer = document.getElementById('mealsListContainer');
+      mealsContainer.innerHTML = '';
+      mealTemplates.forEach(meal => {
+        const key = `c${state.currentCycle}_d${dayObj.day}_${meal.id}`;
+        const done = !!state.completedMeals[key];
+        const div = document.createElement('div');
+        div.className = `p-3.5 rounded-xl border transition ${done ? 'bg-emerald-950/20 border-emerald-800/60' : 'bg-slate-900 border-slate-800'}`;
+        div.innerHTML = `
+          <div class="flex items-start gap-3">
+            <input type="checkbox" ${done ? 'checked' : ''} onchange="toggleMeal('${key}')" class="mt-1 w-5 h-5 accent-emerald-500 cursor-pointer flex-shrink-0">
+            <div>
+              <h4 class="text-sm font-bold ${done ? 'line-through text-slate-400' : 'text-white'}">${meal.title}</h4>
+              <div class="text-[11px] font-mono text-emerald-400 mt-0.5">${meal.macros}</div>
+              <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">${meal.items}</p>
+            </div>
+          </div>
+        `;
+        mealsContainer.appendChild(div);
+      });
+    }
+
+    function toggleCheckpoint(key) {
+      state.completedCheckpoints[key] = !state.completedCheckpoints[key];
+      saveState();
+      renderNutritionTab();
+    }
+
+    function toggleMeal(key) {
+      state.completedMeals[key] = !state.completedMeals[key];
+      saveState();
+      renderNutritionTab();
+    }
+
+    // =========================================================================
+    // 7. BIOMETRICS TAB & CUSTOM MODALS
+    // =========================================================================
+    function renderMetricsTab() {
+      const bioKey = `c${state.currentCycle}_d${state.selectedDay}`;
+      const current = state.biometrics[bioKey] || { sys: '', dia: '', weight: '' };
+      document.getElementById('inputSys').value = current.sys;
+      document.getElementById('inputDia').value = current.dia;
+      document.getElementById('inputWeight').value = current.weight;
+
+      const table = document.getElementById('biometricsHistoryTable');
+      table.innerHTML = '';
+      scheduleMap.forEach(item => {
+        const k = `c${state.currentCycle}_d${item.day}`;
+        const entry = state.biometrics[k];
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between py-2 px-3 rounded-lg bg-slate-950 border border-slate-800/80 cursor-pointer hover:border-slate-700';
+        row.onclick = () => selectDay(item.day);
+        row.innerHTML = `
+          <span class="font-bold ${item.day === state.selectedDay ? 'text-emerald-400' : 'text-slate-300'}">Day ${item.day} (${item.dow})</span>
+          ${entry && (entry.sys || entry.weight) ? `
+            <div class="flex items-center gap-3 font-mono">
+              <span class="${Number(entry.sys) >= 130 || Number(entry.dia) >= 80 ? 'text-amber-400' : 'text-emerald-400'}">
+                BP: ${entry.sys || '--'}/${entry.dia || '--'} mmHg
+              </span>
+              <span class="text-slate-300">${entry.weight ? entry.weight + ' lbs' : '-- lbs'}</span>
+            </div>
+          ` : `<span class="text-slate-600 italic">Tap to log</span>`}
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function saveBiometrics() {
+      const bioKey = `c${state.currentCycle}_d${state.selectedDay}`;
+      state.biometrics[bioKey] = {
+        sys: document.getElementById('inputSys').value,
+        dia: document.getElementById('inputDia').value,
+        weight: document.getElementById('inputWeight').value
+      };
+      saveState();
+      renderMetricsTab();
+      const toast = document.getElementById('saveBioToast');
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2200);
+    }
+
+    function openResetConfirmModal() {
+      document.getElementById('confirmCycleNum').innerText = state.currentCycle;
+      document.getElementById('confirmModalBackdrop').classList.remove('hidden');
+    }
+
+    function closeResetConfirmModal() {
+      document.getElementById('confirmModalBackdrop').classList.add('hidden');
+    }
+
+    function confirmResetCycleData() {
+      Object.keys(state.completedExercises).forEach(k => { if (k.startsWith(`c${state.currentCycle}_`)) delete state.completedExercises[k]; });
+      Object.keys(state.completedMeals).forEach(k => { if (k.startsWith(`c${state.currentCycle}_`)) delete state.completedMeals[k]; });
+      Object.keys(state.completedCheckpoints).forEach(k => { if (k.startsWith(`c${state.currentCycle}_`)) delete state.completedCheckpoints[k]; });
+      saveState();
+      closeResetConfirmModal();
+      initApp();
+    }
+
+    // =========================================================================
+    // 8. CLINICAL GLOSSARY POPUP MODAL FUNCTIONS
+    // =========================================================================
+    // Add Endothelial Flush entry to clinicalGlossary
+    clinicalGlossary.endothelial_flush = {
+      category: "Blood Vessel Health",
+      title: "Endothelial Flush (10-Min Post-Lift Spin)",
+      simple: "Spinning your legs easily on a stationary bike for 10 minutes right after lower-body lifting.",
+      why: "Heavy leg exercises temporarily pool blood and metabolic byproducts in your quads and hamstrings. A 10-minute gentle spin creates steady blood-flow friction ('shear stress') along the inner lining of your arteries (the endothelium), triggering a rush of Nitric Oxide that widens vessels and drops blood pressure."
+    };
+
+    function openTermModal(termKey) {
+      const item = clinicalGlossary[termKey];
+      if (!item) return;
+      document.getElementById('modalTermCategory').innerText = item.category;
+      document.getElementById('modalTermTitle').innerText = item.title;
+      document.getElementById('modalTermBody').innerHTML = `
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Plain-English Meaning</div>
+          <p class="text-slate-200 whitespace-pre-line leading-relaxed">${item.simple}</p>
+        </div>
+        <div class="bg-emerald-950/25 border border-emerald-800/50 rounded-xl p-3.5">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-sky-300 mb-1">Clinical Why (Heart, BP & Muscle Impact)</div>
+          <p class="text-slate-300 leading-relaxed">${item.why}</p>
+        </div>
+      `;
+      document.getElementById('termModalBackdrop').classList.remove('hidden');
+    }
+
+    function openGlossaryIndex() {
+      document.getElementById('modalTermCategory').innerText = "Complete Reference Guide";
+      document.getElementById('modalTermTitle').innerText = "Plain-English Clinical & Training Glossary";
+      const listHtml = Object.keys(clinicalGlossary).map(key => {
+        const item = clinicalGlossary[key];
+        return `
+          <div onclick="openTermModal('${key}')" class="bg-slate-950 hover:bg-slate-800/90 border border-slate-800 rounded-xl p-3 cursor-pointer transition">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-emerald-300 text-xs">${item.title}</span>
+              <span class="text-[10px] text-slate-400 uppercase px-2 py-0.5 bg-slate-900 rounded">${item.category}</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mt-1 line-clamp-2">${item.simple}</p>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('modalTermBody').innerHTML = `
+        <p class="text-xs text-slate-400 mb-2">Tap any term below for its full breakdown and blood-pressure/cholesterol mechanism:</p>
+        <div class="space-y-2">${listHtml}</div>
+      `;
+      document.getElementById('termModalBackdrop').classList.remove('hidden');
+    }
+
+    function closeTermModal() {
+      document.getElementById('termModalBackdrop').classList.add('hidden');
+    }
+
+    // =========================================================================
+    // 9. WORKOUT & INTERVAL TIMER + 5-MIN BREATHING PACER
+    // =========================================================================
+    let timerSeconds = 60;
+    let timerInterval = null;
+
+    function updateTimerUI() {
+      const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+      const secs = String(timerSeconds % 60).padStart(2, '0');
+      document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
+    }
+
+    function setTimer(secs) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerSeconds = secs;
+      updateTimerUI();
+      toggleTimer();
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('timerStartBtn');
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btn.innerText = 'Start';
+      } else {
+        if (timerSeconds <= 0) timerSeconds = 60;
+        btn.innerText = 'Pause';
+        timerInterval = setInterval(() => {
+          timerSeconds--;
+          updateTimerUI();
+          if (timerSeconds <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            btn.innerText = 'Start';
+            document.getElementById('timerDisplay').innerText = "DONE!";
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerSeconds = 60;
+      document.getElementById('timerStartBtn').innerText = 'Start';
+      updateTimerUI();
+    }
+
+    // 5-Minute Evening Vagal Breathing Pacer (4.5s Inhale / 5.5s Exhale)
+    let breathInterval = null;
+    let breathTotalSeconds = 300;
+    let breathCycleTick = 0;
+
+    function toggleBreathingPacer() {
+      const btn = document.getElementById('breathBtn');
+      const visual = document.getElementById('breathVisual');
+      const phaseText = document.getElementById('breathPhaseText');
+
+      if (breathInterval) {
+        clearInterval(breathInterval);
+        breathInterval = null;
+        btn.innerText = 'Resume Session';
+        phaseText.innerText = 'Paused';
+        visual.style.transform = 'scale(1)';
+      } else {
+        btn.innerText = 'Pause';
+        breathInterval = setInterval(() => {
+          breathCycleTick = (breathCycleTick + 1) % 20;
+          if (breathCycleTick % 2 === 0 && breathTotalSeconds > 0) {
+            breathTotalSeconds--;
+          }
+          const mins = String(Math.floor(breathTotalSeconds / 60)).padStart(2, '0');
+          const secs = String(breathTotalSeconds % 60).padStart(2, '0');
+          document.getElementById('breathTimerText').innerText = `${mins}:${secs}`;
+
+          // 0 to 8 ticks = 4.5s Inhale; 9 to 19 ticks = 5.5s Exhale
+          if (breathCycleTick < 9) {
+            phaseText.innerText = 'Inhale (Nose)';
+            visual.style.transform = 'scale(1.42)';
+            visual.style.backgroundColor = 'rgba(14, 165, 233, 0.35)';
+          } else {
+            phaseText.innerText = 'Exhale Slowly';
+            visual.style.transform = 'scale(0.95)';
+            visual.style.backgroundColor = 'rgba(16, 185, 129, 0.25)';
+          }
+
+          if (breathTotalSeconds <= 0) {
+            resetBreathingPacer();
+            phaseText.innerText = 'Complete!';
+          }
+        }, 500);
+      }
+    }
+
+    function resetBreathingPacer() {
+      clearInterval(breathInterval);
+      breathInterval = null;
+      breathTotalSeconds = 300;
+      breathCycleTick = 0;
+      document.getElementById('breathBtn').innerText = 'Start 5-Min Session';
+      document.getElementById('breathPhaseText').innerText = 'Ready';
+      document.getElementById('breathTimerText').innerText = '05:00';
+      document.getElementById('breathVisual').style.transform = 'scale(1)';
+    }
+
+    // =========================================================================
+    // 10. BOTTOM TAB NAVIGATION
+    // =========================================================================
+    function switchTab(tabName) {
+      ['workout', 'nutrition', 'recovery', 'metrics'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        const navBtn = document.getElementById(`nav-${t}`);
+        navBtn.classList.remove('text-emerald-400');
+        navBtn.classList.add('text-slate-400');
+      });
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`nav-${tabName}`);
+      activeBtn.classList.remove('text-slate-400');
+      activeBtn.classList.add('text-emerald-400');
+    }
+
+    // Initialize App on Load
+    window.onload = function () {
+      updateTimerUI();
+      initApp();
+    };
+  </script>
+</body>
+</html>
